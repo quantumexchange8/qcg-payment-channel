@@ -1,26 +1,50 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue'
 
-const model = defineModel({
-    type: String,
-    required: true,
-});
+defineProps({
+    modelValue: [String, Number],
+    withIcon: {
+        type: Boolean,
+        default: false,
+    },
+    invalid: [String, Array]
+})
 
-const input = ref(null);
+defineEmits(['update:modelValue'])
+
+const input = ref(null)
+
+const focus = () => input.value?.focus()
+
+defineExpose({
+    input,
+    focus
+})
 
 onMounted(() => {
     if (input.value.hasAttribute('autofocus')) {
-        input.value.focus();
+        input.value.focus()
     }
-});
-
-defineExpose({ focus: () => input.value.focus() });
+})
 </script>
 
 <template>
     <input
-        class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-        v-model="model"
+        :class="[
+            'py-2 rounded text-base font-normal shadow-sm border placeholder:text-gray-300 text-gray-950',
+            'bg-white',
+            'disabled:bg-gray-200 disabled:cursor-not-allowed disabled:text-gray-400',
+            {
+                'px-4': !withIcon,
+                'pl-11 pr-4': withIcon,
+            },
+            {
+                'border-gray-200 focus:ring-bilbao-800 hover:border-bilbao-600 focus:border-bilbao-800' :!invalid,
+                'border-error-300 focus:ring-error-300 hover:border-error-300 focus:border-error-300' :invalid,
+            }
+        ]"
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
         ref="input"
     />
 </template>

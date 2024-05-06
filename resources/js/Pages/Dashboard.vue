@@ -1,22 +1,58 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import {h, ref} from 'vue'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import Deposit from "@/Pages/Home/Partials/Deposit.vue";
+import InternalTransfer from "@/Pages/Home/Partials/InternalTransfer.vue";
+import Withdrawal from "@/Pages/Home/Partials/Withdrawal.vue";
+
+const categories = ref({
+    Deposit: h(Deposit),
+    'Internal Transfer': h(InternalTransfer),
+    Withdrawal: h(Withdrawal),
+})
 </script>
 
 <template>
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
-        <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Dashboard</h2>
-        </template>
+        <div class="w-full max-w-md">
+            <TabGroup>
+                <TabList class="flex justify-center gap-3 px-3">
+                    <Tab
+                        v-for="category in Object.keys(categories)"
+                        as="template"
+                        :key="category"
+                        v-slot="{ selected }"
+                    >
+                        <button
+                            :class="[
+                              'flex justify-center items-center w-full rounded p-2 text-xs font-semibold',
+                              'ring-transparent focus:outline-none',
+                              selected
+                                ? 'bg-bilbao-100 text-bilbao-800'
+                                : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
+                            ]"
+                        >
+                            {{ category }}
+                        </button>
+                    </Tab>
+                </TabList>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900">You're logged in!</div>
-                </div>
-            </div>
+                <TabPanels class="mt-8">
+                    <TabPanel
+                        v-for="component in Object.values(categories)"
+                        :class="[
+                            'bg-white px-3',
+                            'ring-transparent focus:outline-none',
+                          ]"
+                    >
+                        <component :is="component" />
+                    </TabPanel>
+                </TabPanels>
+            </TabGroup>
         </div>
     </AuthenticatedLayout>
 </template>
