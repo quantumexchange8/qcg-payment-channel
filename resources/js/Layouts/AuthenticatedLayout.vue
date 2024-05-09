@@ -137,7 +137,7 @@ const showingNavigationDropdown = ref(false);
                 </div>
             </nav>
 
-            <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-8 py-5">
                 <!-- Page Heading -->
                 <LogoHeader />
 
