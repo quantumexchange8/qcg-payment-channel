@@ -6,6 +6,7 @@ import TextInput from '@/Components/TextInput.vue';
 import { Copy03Icon } from "@/Components/Icons/outline";
 import { TetherIcon } from "@/Components/Icons/brands";
 import { Icon } from "@/Components/Icons/outline";
+import Button from "@/Components/Button.vue";
 
 const trading_account = ref('');
 
@@ -26,14 +27,14 @@ const hover_copy = ref(false);
 
 const copyCode = () => {
     const walletCode = document.querySelector('#WalletCode').textContent;
-    
+
     const tempInput = document.createElement('input');
     tempInput.value = walletCode;
     document.body.appendChild(tempInput);
     tempInput.select();
     document.execCommand('copy');
     document.body.removeChild(tempInput);
-    
+
     setTimeout(function() {
         hover_copy.value = false;
     }, 3000);
@@ -51,7 +52,7 @@ const copyCode = () => {
             />
             <div class="text-gray-500 text-xs font-medium">Balance: $453</div>
         </div>
-        
+
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="deposit_amount" value="Deposit Amount" />
             <TextInput
@@ -61,7 +62,7 @@ const copyCode = () => {
                 placeholder="$ 0.00"
             />
         </div>
-        
+
         <div class="mb-4 flex p-5 flex-col justify-between items-center self-stretch rounded bg-gray-50">
             <div class="flex gap-3 items-center">
                 <TetherIcon />
@@ -82,9 +83,9 @@ const copyCode = () => {
                 </div>
                 <div class="relative" @click="hover_copy = true" @mouseleave="hover_copy = false">
                     <Copy03Icon class="text-bilbao-700 hover:cursor-pointer hover:text-bilbao-800 focus:text-bilbao-900" @click="copyCode"/>
-                    <div 
+                    <div
                         v-show="hover_copy"
-                        id="copied_success" 
+                        id="copied_success"
                         class="w-32 -left-16 absolute bottom-4 p-1 mb-2 text-sm text-center text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 transition ease-in-out"
                     >
                         Copied wallet address
@@ -92,7 +93,7 @@ const copyCode = () => {
                 </div>
             </div>
         </div>
-        
+
         <div class="mb-4 flex flex-row p-3 items-start gap-2 self-stretch rounded bg-gray-50">
             <div class="w-5 h-5">
                 <Icon class="text-gray-950"/>
@@ -101,7 +102,7 @@ const copyCode = () => {
                 Please complete your deposit within the specified time. After you have successfully transferred the funds, copy your TxID and paste it in the space below, then click 'Complete Deposit'
             </div>
         </div>
-        
+
         <div class="mb-4 flex flex-col items-start gap-1.5">
             <InputLabel for="txid" value="TxID" />
             <TextInput
@@ -111,18 +112,20 @@ const copyCode = () => {
                 placeholder="Paste your TxID here"
             />
         </div>
-        
+
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="txid" value="Upload Receipt" />
-            <button
-                class="py-2 px-4 justify-center items-center gap-1.5 rounded bg-bilbao-100 text-bilbao-800 text-center text-sm font-semibold"
+            <Button
+                type="button"
+                class="flex justify-center"
+                variant="secondary"
+                size="sm"
             >
-            icon Browse
-            <!-- file upload -->
-            </button>
+                Browse
+            </Button>
         </div>
-        
-        <button 
+
+        <button
             class="w-full flex py-3 px-4 justify-center items-center gap-2 self-stretch rounded bg-bilbao-800 text-white text-center text-sm font-semibold"
         >
         Complete Deposit
