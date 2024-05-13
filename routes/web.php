@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -14,9 +15,12 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function() {
+    Route::get('/dashboard', [PaymentController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/deposit', [PaymentController::class, 'deposit'])->name('dashboard.deposit');
+    Route::post('/dashboard/internalTransfer', [PaymentController::class, 'internalTransfer'])->name('dashboard.internalTransfer');
+    Route::post('/dashboard/withdrawal', [PaymentController::class, 'withdrawal'])->name('dashboard.withdrawal');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

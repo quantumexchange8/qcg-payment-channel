@@ -49,3 +49,13 @@ export const Icon = defineComponent({
         )
     },
 })
+
+export const UploadIcon = defineComponent({
+    setup() {
+        return () => (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.99912 2.69106V13.3392M7.27026 4.80771L9.9994 2.06641L12.7295 4.80771M13.8535 9.16074H17.7077V17.9307H2.29102V9.16074H6.14518" stroke="#1C7800" stroke-width="1.25" stroke-linecap="square"/>
+            </svg>
+        )
+    },
+})

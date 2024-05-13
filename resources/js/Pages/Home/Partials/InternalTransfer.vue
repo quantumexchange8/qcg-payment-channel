@@ -1,26 +1,58 @@
 <script setup>
 import BaseListbox from "@/Components/BaseListbox.vue";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
+import Button from "@/Components/Button.vue";
+import { useForm, usePage } from "@inertiajs/vue3";
 
-const trading_account = ref('');
-const transfer_mode = ref('');
-
-const rankFilter = [
-    { value: '', label: "All" },
-    { value: '1', label: "Member" },
-    { value: '2', label: "Rank 1" },
-    { value: '3', label: "Rank 2" },
-    { value: '4', label: "Rank 3" },
-    { value: '5', label: "Rank 4" },
+const transferModeSelect = [
+    { value: '0', label: "Cash wallet to trading account" },
+    { value: '1', label: "Trading account to cash wallet" },
+    { value: '2', label: "Trading account to trading account" },
 ];
 
+const user = usePage().props.auth.user;
+const props = defineProps({
+    tradingAccounts: Array,
+    walletAddresses: Array,
+})
+
+const form = useForm({
+    transferMode: '',
+    trading_account: '',
+    amount: null,
+});
+
 const submitForm = () => {
-    console.log('submitting')
+    form.post(route('dashboard.internalTransfer'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+        },
+        onError: () => {
+            alert('error');
+        }
+    })
 }
 
+const transfer_mode = ref('');
+watch(transfer_mode, 
+    (newValue) => {
+        form.transferMode = newValue;
+    }
+);
+
+const account = ref('');
+const balance = ref('Loading...');
+watch(account, (newValue) => {
+    const matchedAccount = props.tradingAccounts.find(trading_account => trading_account.value === newValue);
+    if (matchedAccount) {
+        balance.value = '$ ' + matchedAccount.balance;
+    }
+    form.trading_account = newValue;
+})
 </script>
 
 <template>
@@ -29,7 +61,7 @@ const submitForm = () => {
             Cash Wallet Balance
         </div>
         <div class="self-stretch text-gray-950 text-center text-xl font-bold">
-            $ 8,389.28
+            $ {{ user.cash_wallet }}
         </div>
     </div>
 
@@ -52,24 +84,25 @@ const submitForm = () => {
             <InputLabel for="transfer_mode" value="Transfer Mode" />
             <BaseListbox
                 v-model="transfer_mode"
-                :options="rankFilter"
+                :options="transferModeSelect"
                 class="w-full"
             />
         </div>
     
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="trading_account" value="Trading Account" />
+            <InputLabel for="account" value="Trading Account" />
             <BaseListbox
-                v-model="trading_account"
-                :options="rankFilter"
+                v-model="account"
+                :options="props.tradingAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">Balance: $ 321</div>
+            <div class="text-gray-500 text-xs font-medium">Balance: {{ balance }}</div>
         </div>
     
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="amount" value="Amount" />
             <TextInput
+                v-model="form.amount"
                 id="amount"
                 type="text"
                 class="block w-full"
@@ -77,10 +110,8 @@ const submitForm = () => {
             />
         </div>
     
-        <button class="w-full flex py-3 px-4 justify-center items-center gap-2 self-stretch rounded bg-bilbao-800 
-                text-white text-center text-sm font-semibold"
-        >
-        Process
-        </button>
+        <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">
+            Process
+        </Button>
     </form>
 </template>

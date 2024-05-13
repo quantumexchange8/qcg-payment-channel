@@ -1,11 +1,34 @@
 <script setup>
 import BaseListbox from "@/Components/BaseListbox.vue";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
+import Button from "@/Components/Button.vue";
+import { useForm, usePage } from "@inertiajs/vue3";
 
-const usdt_address = ref('');
+const user = usePage().props.auth.user;
+const props = defineProps({
+    tradingAccounts: Array,
+    walletAddresses: Array,
+})
+
+const form = useForm({
+    amount: null,
+    usdtAddress: ''
+});
+
+const submitForm = () => {
+    form.post(route('dashboard.withdrawal'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+        },
+        onError: () => {
+            alert('error');
+        }
+    })
+}
 
 const rankFilter = [
     { value: '', label: "All" },
@@ -16,13 +39,12 @@ const rankFilter = [
     { value: '5', label: "Rank 4" },
 ];
 
-const submitForm = () => {
-    console.log('submitting');
-}
-
-const fullAmount = () => {
-    console.log('full amount');
-}
+const usdt_address = ref('');
+watch(usdt_address, 
+    (newValue) => {
+        form.usdtAddress = newValue;
+    }
+);
 </script>
 
 <template>
@@ -31,7 +53,7 @@ const fullAmount = () => {
             Cash Wallet Balance
         </div>
         <div class="self-stretch text-gray-950 text-center text-xl font-bold">
-            $ 8,389.28
+            $ {{ user.cash_wallet }}
         </div>
     </div>
 
@@ -53,6 +75,7 @@ const fullAmount = () => {
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="amount" value="Amount" />
             <TextInput
+                v-model="form.amount"
                 id="amount"
                 type="text"
                 class="block w-full"
@@ -72,11 +95,9 @@ const fullAmount = () => {
             <div class="text-gray-500 text-xs font-medium">some text in here</div>
         </div>
 
-        <button class="w-full flex py-3 px-4 justify-center items-center gap-2 self-stretch rounded bg-bilbao-800 
-                text-white text-center text-sm font-semibold"
-        >
-        Request Withdrawal
-        </button>
+        <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">
+            Request Withdrawal
+        </Button>
     </form>
 
 </template>

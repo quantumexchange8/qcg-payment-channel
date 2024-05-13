@@ -7,6 +7,11 @@ import Deposit from "@/Pages/Home/Partials/Deposit.vue";
 import InternalTransfer from "@/Pages/Home/Partials/InternalTransfer.vue";
 import Withdrawal from "@/Pages/Home/Partials/Withdrawal.vue";
 
+const props = defineProps({
+    tradingAccounts: Array,
+    walletAddresses: Array,
+})
+
 const categories = ref({
     Deposit: h(Deposit),
     'Internal Transfer': h(InternalTransfer),
@@ -49,7 +54,10 @@ const categories = ref({
                             'ring-transparent focus:outline-none',
                           ]"
                     >
-                        <component :is="component" />
+                        <component :is="component" 
+                            :tradingAccounts="tradingAccounts"
+                            :walletAddresses="walletAddresses"
+                        />
                     </TabPanel>
                 </TabPanels>
             </TabGroup>
