@@ -6,11 +6,13 @@ import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
 import Button from "@/Components/Button.vue";
 import { useForm, usePage } from "@inertiajs/vue3";
+import InputError from "@/Components/InputError.vue";
 
 const user = usePage().props.auth.user;
 const props = defineProps({
     tradingAccounts: Array,
     walletAddresses: Array,
+    paymentAccounts: Array,
 })
 
 const form = useForm({
@@ -19,32 +21,29 @@ const form = useForm({
 });
 
 const submitForm = () => {
+    form.usdtAddress = usdtAddress.value;
     form.post(route('dashboard.withdrawal'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
         },
         onError: () => {
-            alert('error');
+            if (form.errors.amount) {
+                form.reset('amount');
+            }
         }
     })
 }
 
-const rankFilter = [
-    { value: '', label: "All" },
-    { value: '1', label: "Member" },
-    { value: '2', label: "Rank 1" },
-    { value: '3', label: "Rank 2" },
-    { value: '4', label: "Rank 3" },
-    { value: '5', label: "Rank 4" },
-];
-
-const usdt_address = ref('');
-watch(usdt_address, 
-    (newValue) => {
-        form.usdtAddress = newValue;
+const usdtAddress = ref(props.paymentAccounts[0].value);
+const accountNo = ref(props.paymentAccounts[0].value);
+watch(usdtAddress, (newValue) => {
+    const matchedAddress = props.paymentAccounts.find(paymentAccount => paymentAccount.value === newValue);
+    if (matchedAddress) {
+        accountNo.value = matchedAddress.value;
     }
-);
+})
+
 </script>
 
 <template>
@@ -83,16 +82,18 @@ watch(usdt_address,
             />
             <!-- full amount button -->
             <div class="text-gray-500 text-xs font-medium">Minimum withdrawal amount: $ 10.00</div>
+            <InputError :message="form.errors.amount" />
         </div>
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="usdt_address" value="Select USDT Address" />
+            <InputLabel for="usdtAddress" value="Select USDT Address" />
             <BaseListbox
-                v-model="usdt_address"
-                :options="rankFilter"
+                v-model="usdtAddress"
+                :options="props.paymentAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">some text in here</div>
+            <div class="text-gray-500 text-xs font-medium">{{ accountNo }}</div>
+            <InputError :message="form.errors.usdtAddress" />
         </div>
 
         <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">

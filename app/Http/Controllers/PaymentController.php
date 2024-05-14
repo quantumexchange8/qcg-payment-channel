@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DepositRequest;
+use App\Http\Requests\InternalTransferRequest;
+use App\Http\Requests\WithdrawalRequest;
+use App\Models\PaymentAccount;
 use App\Models\SettingWalletAddress;
 use App\Models\TradingAccount;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,10 +25,24 @@ class PaymentController extends Controller
             ];
         });
         $wallet_addresses = SettingWalletAddress::all()->pluck('wallet_address')->shuffle();
+        $payment_accounts = PaymentAccount::where('user_id', $user_id)->get()->map(function ($payment_account) {
+            return [
+                'value' => $payment_account->account_no,
+                'label' => $payment_account->payment_account_name,
+            ];
+        });
+
+        if(count($trading_accounts) === 0) {
+            $trading_accounts = [['value' => 'Unavailable', 'label' => 'No account', 'balance' => 'Unavailable']];
+        }
+        if(count($payment_accounts) === 0) {
+            $payment_accounts = [['value' => 'Unavailable', 'label' => 'No account']];
+        }
 
         return Inertia::render('Dashboard', [
             'tradingAccounts' => $trading_accounts,
             'walletAddresses' => $wallet_addresses,
+            'paymentAccounts' => $payment_accounts,
         ]);
     }
 
@@ -44,7 +60,7 @@ class PaymentController extends Controller
         die();
     }
 
-    public function internalTransfer(Request $request)
+    public function internalTransfer(InternalTransferRequest $request)
     {
         dd($request);
 
@@ -55,9 +71,11 @@ class PaymentController extends Controller
         echo $request->amount;
         echo "<br><br>";
         die();
+
+        // to check from and to, if (transferMode === '2' && from === to)
     }
     
-    public function withdrawal(Request $request)
+    public function withdrawal(WithdrawalRequest $request)
     {
         dd($request);
 

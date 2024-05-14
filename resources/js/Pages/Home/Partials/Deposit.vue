@@ -10,6 +10,7 @@ import Button from "@/Components/Button.vue";
 import { UploadIcon } from "@/Components/Icons/outline";
 import { useForm } from "@inertiajs/vue3";
 import Qrcode from "qrcode.vue";
+import InputError from "@/Components/InputError.vue";
 
 const props = defineProps({
     tradingAccounts: Array,
@@ -97,7 +98,12 @@ const submitForm = () => {
             form.reset();
         },
         onError: () => {
-            alert('error');
+            if (form.errors.deposit_amount) {
+                form.reset('deposit_amount');
+            }
+            if (form.errors.txid) {
+                form.reset('txid');
+            }
         }
     })
 }
@@ -123,6 +129,7 @@ watch(account, (newValue) => {
                 class="w-full"
             />
             <div class="text-gray-500 text-xs font-medium">Balance: $ {{ balance }}</div>
+            <InputError :message="form.errors.meta_login" />
         </div>
 
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
@@ -134,6 +141,7 @@ watch(account, (newValue) => {
                 class="block w-full"
                 placeholder="$ 0.00"
             />
+            <InputError :message="form.errors.deposit_amount" />
         </div>
 
         <div class="mb-4 flex p-5 flex-col justify-between items-center self-stretch rounded bg-gray-50">
@@ -185,6 +193,7 @@ watch(account, (newValue) => {
                 class="block w-full"
                 placeholder="Paste your TxID here"
             />
+            <InputError :message="form.errors.txid" />
         </div>
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
@@ -208,6 +217,7 @@ watch(account, (newValue) => {
                 <UploadIcon :class="iconSizeClasses" />
                 Browse
             </Button>
+            <InputError :message="form.errors.receipt_file" />
         </div>
 
         <Button

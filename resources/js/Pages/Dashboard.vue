@@ -10,6 +10,7 @@ import Withdrawal from "@/Pages/Home/Partials/Withdrawal.vue";
 const props = defineProps({
     tradingAccounts: Array,
     walletAddresses: Array,
+    paymentAccounts: Array,
 })
 
 const categories = ref({
@@ -57,6 +58,7 @@ const categories = ref({
                         <component :is="component" 
                             :tradingAccounts="tradingAccounts"
                             :walletAddresses="walletAddresses"
+                            :paymentAccounts="paymentAccounts"
                         />
                     </TabPanel>
                 </TabPanels>
