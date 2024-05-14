@@ -81,15 +81,6 @@ const form = useForm({
     receipt_file: null,
 });
 
-const handleReceipt = (event) => {
-    const receiptInput = event.target;
-    const file = receiptInput.files[0];
-
-    if(file) {
-        form.receipt_file = event.target.files[0];
-    }
-};
-
 const submitForm = () => {
     form.meta_login = account.value
     form.post(route('dashboard.deposit'), {
@@ -198,20 +189,12 @@ watch(account, (newValue) => {
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="receipt_file" value="Upload Receipt" :is_required="false" />
-            <input
-                ref="receiptInput"
-                id="receipt_file"
-                type="file"
-                class="hidden"
-                accept=""
-                @change="handleReceipt"
-            />
             <Button
                 type="button"
                 class="flex gap-2 justify-center"
                 variant="secondary"
                 size="sm"
-                @click="$refs.receiptInput.click()"
+                @click=""
                 v-slot="{ iconSizeClasses }"
             >
                 <UploadIcon :class="iconSizeClasses" />

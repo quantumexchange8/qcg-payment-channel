@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DepositRequest extends FormRequest
+class InternalTransferRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,18 +22,20 @@ class DepositRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'meta_login' => ['required'],
-            'deposit_amount' => ['required', 'numeric'],
-            'txid' => ['required']
+            'transferMode' => ['required'],
+            'from_meta_login' => ['exclude_unless:transferMode,2','required','different:to_meta_login'],
+            'to_meta_login' => ['exclude_unless:transferMode,2','required','different:from_meta_login'],
+            'amount' => ['required', 'numeric'],
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'meta_login' => 'Trading Account',
-            'deposit_amount' => 'Deposit Amount',
-            'txid' => 'TxID',
+            'transferMode' => 'Transfer Mode',
+            'from_meta_login' => 'From Trading Account',
+            'to_meta_login' => 'To Trading Account',
+            'amount' => 'Amount',
         ];
     }
 }

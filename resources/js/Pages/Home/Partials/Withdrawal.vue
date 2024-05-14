@@ -36,11 +36,11 @@ const submitForm = () => {
 }
 
 const usdtAddress = ref(props.paymentAccounts[0].value);
-const accountNo = ref(props.paymentAccounts[0].value);
+const accountNo = ref(props.paymentAccounts[0].address);
 watch(usdtAddress, (newValue) => {
     const matchedAddress = props.paymentAccounts.find(paymentAccount => paymentAccount.value === newValue);
     if (matchedAddress) {
-        accountNo.value = matchedAddress.value;
+        accountNo.value = matchedAddress.address;
     }
 })
 

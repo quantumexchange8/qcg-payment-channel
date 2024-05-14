@@ -6,53 +6,91 @@ import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
 import Button from "@/Components/Button.vue";
 import { useForm, usePage } from "@inertiajs/vue3";
+import InputError from "@/Components/InputError.vue";
+
+const user = usePage().props.auth.user;
+const props = defineProps({
+    tradingAccounts: Array,
+    walletAddresses: Array,
+    paymentAccounts: Array,
+})
 
 const transferModeSelect = [
     { value: '0', label: "Cash wallet to trading account" },
     { value: '1', label: "Trading account to cash wallet" },
     { value: '2', label: "Trading account to trading account" },
 ];
-
-const user = usePage().props.auth.user;
-const props = defineProps({
-    tradingAccounts: Array,
-    walletAddresses: Array,
-})
+const transfer_mode = ref(transferModeSelect[0].value);
 
 const form = useForm({
     transferMode: '',
-    trading_account: '',
+    from_meta_login: '',
+    to_meta_login: '',
     amount: null,
 });
 
 const submitForm = () => {
+    form.transferMode = transfer_mode.value;
+    form.from_meta_login = fromAccount.value;
+    form.to_meta_login = toAccount.value;
     form.post(route('dashboard.internalTransfer'), {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
         },
         onError: () => {
-            alert('error');
+            if (form.errors.amount) {
+                form.reset('amount');
+            }
         }
     })
 }
 
-const transfer_mode = ref('');
-watch(transfer_mode, 
-    (newValue) => {
-        form.transferMode = newValue;
-    }
-);
-
-const account = ref('');
-const balance = ref('Loading...');
-watch(account, (newValue) => {
+// update balance based on account
+const updateBalance = (newValue) => {
     const matchedAccount = props.tradingAccounts.find(trading_account => trading_account.value === newValue);
     if (matchedAccount) {
-        balance.value = '$ ' + matchedAccount.balance;
+        toBalance.value = '$ ' + matchedAccount.balance;
     }
-    form.trading_account = newValue;
-})
+    checkAccount(newValue);
+}
+
+const fromAccount = ref(props.tradingAccounts[0].value);
+const fromBalance = ref(props.tradingAccounts[0].balance);
+watch(fromAccount, (newValue) => updateBalance(newValue));
+
+const toAccount = ref(props.tradingAccounts[0].value);
+const toBalance = ref(props.tradingAccounts[0].balance);
+watch(toAccount, (newValue) => updateBalance(newValue));
+
+// if to & from same account, display error msg
+const checkAccount = (newValue) => {
+    if (transfer_mode.value === '2') {
+        form.errors.to_meta_login = "";
+        if (fromAccount.value === newValue && toAccount.value === newValue) {
+            form.errors.to_meta_login = "Cannot transfer to the same trading account";
+        }
+    }
+}
+
+const displayFrom = ref(false);
+const displayTo = ref(true);
+
+watch(transfer_mode, (newValue) => {
+    if(newValue === '0') {
+        displayFrom.value = false;
+        displayTo.value = true;
+    }
+    if(newValue === '1') {
+        displayFrom.value = true;
+        displayTo.value = false;
+    }
+    if(newValue === '2') {
+        displayFrom.value = true;
+        displayTo.value = true;
+        checkAccount(toAccount.value);
+    }
+});
 </script>
 
 <template>
@@ -87,18 +125,31 @@ watch(account, (newValue) => {
                 :options="transferModeSelect"
                 class="w-full"
             />
+            <InputError :message="form.errors.transferMode" />
         </div>
-    
-        <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="account" value="Trading Account" />
+
+        <div v-show="displayFrom" class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
+            <InputLabel for="account" value="From Trading Account" />
             <BaseListbox
-                v-model="account"
+                v-model="fromAccount"
                 :options="props.tradingAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">Balance: {{ balance }}</div>
+            <div class="text-gray-500 text-xs font-medium">Balance: {{ fromBalance }}</div>
+            <InputError :message="form.errors.from_meta_login" />
         </div>
-    
+
+        <div v-show="displayTo" class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
+            <InputLabel for="account" value="To Trading Account" />
+            <BaseListbox
+                v-model="toAccount"
+                :options="props.tradingAccounts"
+                class="w-full"
+            />
+            <div class="text-gray-500 text-xs font-medium">Balance: {{ toBalance }}</div>
+            <InputError :message="form.errors.to_meta_login" />
+        </div>
+
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="amount" value="Amount" />
             <TextInput
@@ -108,6 +159,7 @@ watch(account, (newValue) => {
                 class="block w-full"
                 placeholder="$ 0.00"
             />
+            <InputError :message="form.errors.amount" />
         </div>
     
         <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">

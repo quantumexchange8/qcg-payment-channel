@@ -15,8 +15,7 @@ class PaymentController extends Controller
 {
     public function index(): Response
     {
-        // $user_id = auth()->user()->id;
-        $user_id = 1188;
+        $user_id = auth()->user()->id;
         $trading_accounts = TradingAccount::where('user_id', $user_id)->get()->map(function ($trading_account) {
             return [
                 'value' => $trading_account->meta_login,
@@ -27,8 +26,9 @@ class PaymentController extends Controller
         $wallet_addresses = SettingWalletAddress::all()->pluck('wallet_address')->shuffle();
         $payment_accounts = PaymentAccount::where('user_id', $user_id)->get()->map(function ($payment_account) {
             return [
-                'value' => $payment_account->account_no,
+                'value' => $payment_account->id,
                 'label' => $payment_account->payment_account_name,
+                'address' => $payment_account->account_no
             ];
         });
 
@@ -49,40 +49,15 @@ class PaymentController extends Controller
     public function deposit(DepositRequest $request)
     {
         dd($request->all());
-
-        echo $request->trading_account;
-        echo "<br><br>";
-        echo $request->deposit_amount;
-        echo "<br><br>";
-        echo $request->txid;
-        echo "<br><br>";
-        echo $request->receipt_file;
-        die();
     }
 
     public function internalTransfer(InternalTransferRequest $request)
     {
-        dd($request);
-
-        echo $request->transferMode;
-        echo "<br><br>";
-        echo $request->trading_account;
-        echo "<br><br>";
-        echo $request->amount;
-        echo "<br><br>";
-        die();
-
-        // to check from and to, if (transferMode === '2' && from === to)
+        dd($request->all());
     }
     
     public function withdrawal(WithdrawalRequest $request)
     {
-        dd($request);
-
-        echo $request->amount;
-        echo "<br><br>";
-        echo $request->usdtAddress;
-        echo "<br><br>";
-        die();
+        dd($request->all());
     }
 }

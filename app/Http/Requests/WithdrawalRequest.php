@@ -26,4 +26,12 @@ class WithdrawalRequest extends FormRequest
             'usdtAddress' => ['required']
         ];
     }
+    
+    public function attributes(): array
+    {
+        return [
+            'amount' => 'Amount',
+            'usdtAddress' => 'USDT Address',
+        ];
+    }
 }
