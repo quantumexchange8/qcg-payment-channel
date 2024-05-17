@@ -33,7 +33,19 @@ const submitForm = () => {
     form.transferMode = transfer_mode.value;
     form.from_meta_login = fromAccount.value;
     form.to_meta_login = toAccount.value;
-    form.post(route('dashboard.internalTransfer'), {
+
+    let formRoute;
+    if (form.transferMode === '0') {
+        formRoute = route('dashboard.walletToAccount');
+    }
+    if (form.transferMode === '1') {
+        formRoute = route('dashboard.accountToWallet');
+    }
+    if (form.transferMode === '2') {
+        formRoute = route('dashboard.accountToAccount');
+    }
+
+    form.post(formRoute, {
         preserveScroll: true,
         onSuccess: () => {
             form.reset();
@@ -50,18 +62,23 @@ const submitForm = () => {
 const updateBalance = (newValue) => {
     const matchedAccount = props.tradingAccounts.find(trading_account => trading_account.value === newValue);
     if (matchedAccount) {
-        toBalance.value = '$ ' + matchedAccount.balance;
+        return '$ ' + matchedAccount.balance;
     }
-    checkAccount(newValue);
 }
 
 const fromAccount = ref(props.tradingAccounts[0].value);
 const fromBalance = ref(props.tradingAccounts[0].balance);
-watch(fromAccount, (newValue) => updateBalance(newValue));
+watch(fromAccount, (newValue) => {
+    fromBalance.value = updateBalance(newValue);
+    checkAccount(newValue);
+});
 
 const toAccount = ref(props.tradingAccounts[0].value);
 const toBalance = ref(props.tradingAccounts[0].balance);
-watch(toAccount, (newValue) => updateBalance(newValue));
+watch(toAccount, (newValue) => {
+    toBalance.value = updateBalance(newValue);
+    checkAccount(newValue);
+});
 
 // if to & from same account, display error msg
 const checkAccount = (newValue) => {
@@ -70,6 +87,9 @@ const checkAccount = (newValue) => {
         if (fromAccount.value === newValue && toAccount.value === newValue) {
             form.errors.to_meta_login = "Cannot transfer to the same trading account";
         }
+    }
+    else {
+        form.errors.to_meta_login = "";
     }
 }
 

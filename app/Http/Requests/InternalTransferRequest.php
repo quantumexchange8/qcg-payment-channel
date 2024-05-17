@@ -23,9 +23,9 @@ class InternalTransferRequest extends FormRequest
     {
         return [
             'transferMode' => ['required'],
-            'from_meta_login' => ['exclude_unless:transferMode,2','required','different:to_meta_login'],
+            'from_meta_login' => ['exclude_unless:transferMode,2','required'],
             'to_meta_login' => ['exclude_unless:transferMode,2','required','different:from_meta_login'],
-            'amount' => ['required', 'numeric'],
+            'amount' => ['required', 'numeric', 'min:1'],
         ];
     }
 

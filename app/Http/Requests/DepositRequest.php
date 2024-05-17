@@ -23,8 +23,9 @@ class DepositRequest extends FormRequest
     {
         return [
             'meta_login' => ['required'],
-            'deposit_amount' => ['required', 'numeric'],
-            'txid' => ['required']
+            'deposit_amount' => ['required', 'numeric', 'min:1'],
+            'txid' => ['required', 'string'],
+            'payment_receipt' => ['sometimes']
         ];
     }
 
@@ -34,6 +35,7 @@ class DepositRequest extends FormRequest
             'meta_login' => 'Trading Account',
             'deposit_amount' => 'Deposit Amount',
             'txid' => 'TxID',
+            'payment_receipt' => 'Receipt',
         ];
     }
 }

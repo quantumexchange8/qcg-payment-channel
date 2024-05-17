@@ -22,8 +22,8 @@ class WithdrawalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['required', 'numeric'],
-            'usdtAddress' => ['required']
+            'amount' => ['required', 'numeric','min:10'],
+            'account_no' => ['required','string']
         ];
     }
     
@@ -31,7 +31,7 @@ class WithdrawalRequest extends FormRequest
     {
         return [
             'amount' => 'Amount',
-            'usdtAddress' => 'USDT Address',
+            'account_no' => 'USDT Address',
         ];
     }
 }

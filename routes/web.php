@@ -18,7 +18,9 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('/dashboard', [PaymentController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/deposit', [PaymentController::class, 'deposit'])->name('dashboard.deposit');
-    Route::post('/dashboard/internalTransfer', [PaymentController::class, 'internalTransfer'])->name('dashboard.internalTransfer');
+    Route::post('/dashboard/walletToAccount', [PaymentController::class, 'wallet_to_account'])->name('dashboard.walletToAccount');
+    Route::post('/dashboard/accountToWallet', [PaymentController::class, 'account_to_wallet'])->name('dashboard.accountToWallet');
+    Route::post('/dashboard/accountToAccount', [PaymentController::class, 'account_to_account'])->name('dashboard.accountToAccount');
     Route::post('/dashboard/withdrawal', [PaymentController::class, 'withdrawal'])->name('dashboard.withdrawal');
 });
 

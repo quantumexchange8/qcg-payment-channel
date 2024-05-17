@@ -78,7 +78,7 @@ const form = useForm({
     meta_login: '',
     deposit_amount: null,
     txid: '',
-    receipt_file: null,
+    payment_receipt: null,
 });
 
 const submitForm = () => {
@@ -188,7 +188,7 @@ watch(account, (newValue) => {
         </div>
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="receipt_file" value="Upload Receipt" :is_required="false" />
+            <InputLabel for="payment_receipt" value="Upload Receipt" :is_required="false" />
             <Button
                 type="button"
                 class="flex gap-2 justify-center"
@@ -200,7 +200,7 @@ watch(account, (newValue) => {
                 <UploadIcon :class="iconSizeClasses" />
                 Browse
             </Button>
-            <InputError :message="form.errors.receipt_file" />
+            <InputError :message="form.errors.payment_receipt" />
         </div>
 
         <Button

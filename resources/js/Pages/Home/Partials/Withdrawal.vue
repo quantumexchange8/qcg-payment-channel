@@ -17,11 +17,11 @@ const props = defineProps({
 
 const form = useForm({
     amount: null,
-    usdtAddress: ''
+    account_no: ''
 });
 
 const submitForm = () => {
-    form.usdtAddress = usdtAddress.value;
+    form.account_no = accountNo.value;
     form.post(route('dashboard.withdrawal'), {
         preserveScroll: true,
         onSuccess: () => {
@@ -93,7 +93,7 @@ watch(usdtAddress, (newValue) => {
                 class="w-full"
             />
             <div class="text-gray-500 text-xs font-medium">{{ accountNo }}</div>
-            <InputError :message="form.errors.usdtAddress" />
+            <InputError :message="form.errors.account_no" />
         </div>
 
         <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">
