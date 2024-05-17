@@ -3,6 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        @if (App::environment('production'))
+            <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+        @endif
+        <meta name="robots" content="noindex, nofollow">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 

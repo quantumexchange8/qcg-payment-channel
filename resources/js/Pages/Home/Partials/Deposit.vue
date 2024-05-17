@@ -7,7 +7,7 @@ import { Copy03Icon } from "@/Components/Icons/outline";
 import { TetherIcon } from "@/Components/Icons/brands";
 import { Icon } from "@/Components/Icons/outline";
 import Button from "@/Components/Button.vue";
-import { UploadIcon } from "@/Components/Icons/outline";
+import { UploadIcon, XIcon } from "@/Components/Icons/outline";
 import { useForm } from "@inertiajs/vue3";
 import Qrcode from "qrcode.vue";
 import InputError from "@/Components/InputError.vue";
@@ -100,32 +100,71 @@ const submitForm = () => {
 }
 
 // display balance based on the account selected
-const account = ref(props.tradingAccounts[0].value);
-const balance = ref(props.tradingAccounts[0].balance);
+const account = ref('');
+const balance = ref('');
+
+onMounted(() => {
+    if (props.tradingAccounts.length > 0) {
+        account.value = props.tradingAccounts[0].value
+        balance.value = props.tradingAccounts[0].balance
+    }
+})
+
 watch(account, (newValue) => {
     const matchedAccount = props.tradingAccounts.find(trading_account => trading_account.value === newValue);
     if (matchedAccount) {
         balance.value = matchedAccount.balance;
     }
 })
+
+const selectedPaymentReceipt = ref(null);
+const selectedPaymentReceiptName = ref(null);
+const handlePaymentIncentive = (event) => {
+    const paymentReceiptInput = event.target;
+    const file = paymentReceiptInput.files[0];
+
+    if (file) {
+        // Display the selected image
+        const reader = new FileReader();
+        reader.onload = () => {
+            selectedPaymentReceipt.value = reader.result;
+        };
+        reader.readAsDataURL(file);
+        selectedPaymentReceiptName.value = file.name;
+        form.payment_receipt = event.target.files[0];
+    } else {
+        selectedPaymentReceipt.value = null;
+    }
+};
+
+const removePaymentIncentive = () => {
+    selectedPaymentReceipt.value = null;
+};
 </script>
 
 <template>
     <form @submit.prevent="submitForm">
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="tradingAccount" value="Trading Account" />
-            <BaseListbox 
-                v-model="account" 
-                :options="tradingAccounts" 
+            <BaseListbox
+                v-model="account"
+                :options="tradingAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">Balance: $ {{ balance }}</div>
+            <div class="text-gray-500 text-xs font-medium">
+                <div v-if="balance">
+                    $ {{ balance }}
+                </div>
+                <div v-else>
+                    loading..
+                </div>
+            </div>
             <InputError :message="form.errors.meta_login" />
         </div>
 
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="deposit_amount" value="Deposit Amount" />
-            <TextInput 
+            <TextInput
                 v-model="form.deposit_amount"
                 id="deposit_amount"
                 type="text"
@@ -155,7 +194,7 @@ watch(account, (newValue) => {
                 </div>
                 <div class="relative" @click="hoverCopy = true" @mouseleave="hoverCopy = false">
                     <Copy03Icon class="text-bilbao-700 hover:cursor-pointer hover:text-bilbao-800 focus:text-bilbao-900" @click="copyCode" />
-                    <div 
+                    <div
                         v-show="hoverCopy"
                         id="copied_success"
                         class="w-32 -left-16 absolute bottom-4 p-1 mb-2 text-sm text-center text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 transition ease-in-out"
@@ -189,18 +228,52 @@ watch(account, (newValue) => {
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="payment_receipt" value="Upload Receipt" :is_required="false" />
-            <Button
-                type="button"
-                class="flex gap-2 justify-center"
-                variant="secondary"
-                size="sm"
-                @click=""
-                v-slot="{ iconSizeClasses }"
+            <div class="flex gap-3">
+                <input
+                    ref="paymentReceiptInput"
+                    id="payment_receipt"
+                    type="file"
+                    class="hidden"
+                    accept="image/*"
+                    @change="handlePaymentIncentive"
+                />
+                <Button
+                    type="button"
+                    class="flex gap-2 justify-center"
+                    variant="secondary"
+                    size="sm"
+                    @click="$refs.paymentReceiptInput.click()"
+                    v-slot="{ iconSizeClasses }"
+                >
+                    <UploadIcon :class="iconSizeClasses" class="text-bilbao-800" />
+                    Browse
+                </Button>
+                <InputError :message="form.errors.payment_receipt" class="mt-2" />
+            </div>
+            <div
+                v-if="selectedPaymentReceipt"
+                class="relative w-full py-2 pl-4 flex justify-between rounded-lg border focus:ring-1 focus:outline-none"
+                :class="[
+                            {
+                                  'border-error-300 focus-within:ring-error-300 hover:border-error-300 focus-within:border-error-300 focus-within:shadow-error-light dark:border-error-600 dark:focus-within:ring-error-600 dark:hover:border-error-600 dark:focus-within:border-error-600 dark:focus-within:shadow-error-dark': form.errors.payment_receipt,
+                                  'border-gray-light-300 dark:border-gray-dark-800 focus:ring-primary-400 hover:border-primary-400 focus-within:border-primary-400 focus-within:shadow-primary-light dark:focus-within:ring-primary-500 dark:hover:border-primary-500 dark:focus-within:border-primary-500 dark:focus-within:shadow-primary-dark': !form.errors.payment_receipt,
+                            }
+                        ]"
             >
-                <UploadIcon :class="iconSizeClasses" />
-                Browse
-            </Button>
-            <InputError :message="form.errors.payment_receipt" />
+                <div class="inline-flex items-center gap-3">
+                    <img :src="selectedPaymentReceipt" alt="Selected Image" class="max-w-full h-9 object-contain rounded" />
+                    <div class="text-gray-light-900 dark:text-gray-dark-50">
+                        {{ selectedPaymentReceiptName }}
+                    </div>
+                </div>
+                <Button
+                    type="button"
+                    variant="transparent"
+                    @click="removePaymentIncentive"
+                >
+                    <XIcon class="text-gray-700 w-5 h-5" />
+                </Button>
+            </div>
         </div>
 
         <Button

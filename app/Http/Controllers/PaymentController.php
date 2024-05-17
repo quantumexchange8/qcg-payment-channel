@@ -31,6 +31,7 @@ class PaymentController extends Controller
                 'balance' => number_format($trading_account->balance, 2),
             ];
         });
+
         $wallet_addresses = SettingWalletAddress::all()->pluck('wallet_address')->shuffle();
         $payment_accounts = PaymentAccount::where('user_id', $user_id)->get()->map(function ($payment_account) {
             return [
@@ -40,13 +41,6 @@ class PaymentController extends Controller
             ];
         });
 
-        if(count($trading_accounts) === 0) {
-            $trading_accounts = [['value' => 'Unavailable', 'label' => 'No account', 'balance' => 'Unavailable']];
-        }
-        if(count($payment_accounts) === 0) {
-            $payment_accounts = [['value' => 'Unavailable', 'label' => 'No account']];
-        }
-
         return Inertia::render('Dashboard', [
             'tradingAccounts' => $trading_accounts,
             'walletAddresses' => $wallet_addresses,
@@ -54,25 +48,8 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function deposit(DepositRequest $request): Response
+    public function deposit(DepositRequest $request): \Illuminate\Http\RedirectResponse
     {
-        return Inertia::render('SuccessPage', [
-            'title' => 'Success!',
-            'description' => 'Your deposit is now being processed.',
-        ]);
-        dd($request->all());
-
-        $conn = (new CTraderService)->connectionStatus();
-        if ($conn['code'] != 0) {
-            if ($conn['code'] == 10) {
-                return back()->withErrors(['connection' => ['No connection with cTrader Server']]);
-            }
-            return back()->withErrors(['connection' => [$conn['message']]]);
-        }
-        /*  $date = date('Y/m/d h:i:s a', time());
-        $date = (int) filter_var($date, FILTER_SANITIZE_NUMBER_INT);
-        $payment_id = "DEMOORDER_" . $date; */
-
         $meta_login = $request->meta_login;
         $amount = number_format($request->deposit_amount, 2, '.', '');
 
@@ -94,7 +71,7 @@ class PaymentController extends Controller
             'currency' => 'TRC20',
             'description' => null,
             'real_amount' => $real_amount,
-            'payment_charges' => $payment_charges, 
+            'payment_charges' => $payment_charges,
         ]);
 
         if ($request->hasFile('payment_receipt')) {
@@ -103,17 +80,19 @@ class PaymentController extends Controller
 
         // Notification::route('mail', 'payment@currenttech.pro')
         //     ->notify(new DepositRequestNotification($payment, $user));
-        
-        return Inertia::render('SuccessPage', [
+
+        return redirect()->route('success_page')->with([
             'title' => 'Success!',
             'description' => 'Your deposit is now being processed.',
         ]);
     }
 
-//Internal Transfer
-// ==================================
-    //wallet to account
-//===================================
+
+    /**
+     * ==============================
+     *       Wallet to Account
+     * ==============================
+     */
     public function wallet_to_account(InternalTransferRequest $request): Response
     {
         return Inertia::render('SuccessPage', [
@@ -169,9 +148,12 @@ class PaymentController extends Controller
             'description' => 'Your internal transfer has been successfully processed.',
         ]);
     }
-// ==================================
-    //account to wallet
-//===================================
+
+    /**
+     * ==============================
+     *       Account to Wallet
+     * ==============================
+     */
     public function account_to_wallet(InternalTransferRequest $request)
     {
         return Inertia::render('SuccessPage', [
@@ -234,9 +216,12 @@ class PaymentController extends Controller
         ]);
     }
 
-// ==================================
-    //account to account
-//===================================
+
+    /**
+     * ==============================
+     *      Account to Account
+     * ==============================
+     */
     public function account_to_account(InternalTransferRequest $request)
     {
         return Inertia::render('SuccessPage', [
@@ -305,7 +290,7 @@ class PaymentController extends Controller
             'description' => 'Your internal transfer has been successfully processed.',
         ]);
     }
-    
+
     public function withdrawal(WithdrawalRequest $request)
     {
         return Inertia::render('SuccessPage', [

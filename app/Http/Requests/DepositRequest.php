@@ -23,9 +23,9 @@ class DepositRequest extends FormRequest
     {
         return [
             'meta_login' => ['required'],
-            'deposit_amount' => ['required', 'numeric', 'min:1'],
+            'deposit_amount' => ['required', 'numeric', 'min:10'],
             'txid' => ['required', 'string'],
-            'payment_receipt' => ['sometimes']
+            'payment_receipt' => ['nullable', 'image']
         ];
     }
 

@@ -23,68 +23,12 @@ class CTraderService
     private $brokerName = "quantumcapitalglobal";
     private $environmentName = "live";
 
-    public function CreateCTID($email)
-    {
-        $response = Http::acceptJson()->post($this->baseURL . "/cid/ctid/create?token={$this->token}", [
-            'brokerName' => $this->brokerName, //
-            'email' => $email, //
-            'preferredLanguage' => 'EN', //
-        ])->json();
-        Log::debug($response);
-        /*  $response['userId'];
-        $response['nickname'];
-        $response['email'];
-        $response['utcCreateTimestamp'];
-        $response['status']; */
-        return $response;
-    }
-
-    public function linkAccountTOCTID($meta_login, $password, $userId,)
-    {
-        $response = Http::acceptJson()->post($this->baseURL . "/cid/ctid/link?token={$this->token}", [
-            'traderLogin' => $meta_login,
-            'traderPasswordHash' => md5($password),
-            'userId' => $userId,
-            'brokerName' => $this->brokerName, //
-            'environmentName' => $this->environmentName, //
-            'returnAccountDetails' => false, //
-        ])->json();
-        Log::debug($response);
-        //$response['ctidTraderAccountId'];
-    }
-
-    public function connectionStatus()
+    public function connectionStatus(): array
     {
         return [
             'code' => 0,
             'message' => "OK",
         ];
-    }
-
-    public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, $accountType, $leadCampaign = null, $leadSource = null, $remarks = null)
-    {
-
-        $accountResponse = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders?token={$this->token}", [
-            'hashedPassword' => md5($mainPassword),
-            'groupName' => $group,
-            'depositCurrency' => 'USD',
-            'name' => $user->first_name,
-            'description' => $remarks,
-            'accessRights' => CTraderAccessRights::FULL_ACCESS,
-            'balance' => 0,
-            'leverageInCents' => $leverage * 100,
-            'contactDetails' => [
-                'phone' => $user->phone,
-            ],
-            'accountType' => CTraderAccountType::HEDGED,
-        ]);
-        $accountResponse = $accountResponse->json();
-        //TraderTO
-        $response = $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
-        Log::debug($response);
-        (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);
-        (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
-        return $accountResponse;
     }
 
     public function getUser($meta_login)
@@ -124,28 +68,12 @@ class CTraderService
         return $trade;
     }
 
-    public function getUserInfo($trading_users)
+    public function getUserInfo($trading_users): void
     {
         foreach ($trading_users as $row) {
             $data = $this->getUser($row->meta_login);
             (new UpdateTradingUser)->execute($row->meta_login, $data);
             (new UpdateTradingAccount)->execute($row->meta_login, $data);
-        }
-    }
-
-    public function updateLeverage($meta_login, $leverage)
-    {
-        $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
-        $response = Http::acceptJson()->put($this->baseURL . "/v2/webserv/traders/{$meta_login}?token={$this->token}", [
-            'login' => $meta_login,
-            'groupName' => $tradingUser->meta_group,
-            'leverageInCents' => $leverage * 100,
-        ]);
-        Log::debug($response->status());
-        if ($response->status() == 204) {
-            $data = $this->getUser($meta_login);
-            (new UpdateTradingUser)->execute($meta_login, $data);
-            (new UpdateTradingAccount)->execute($meta_login, $data);
         }
     }
 }
