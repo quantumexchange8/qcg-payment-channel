@@ -139,6 +139,7 @@ const handlePaymentIncentive = (event) => {
 
 const removePaymentIncentive = () => {
     selectedPaymentReceipt.value = null;
+    form.payment_receipt = null;
 };
 </script>
 

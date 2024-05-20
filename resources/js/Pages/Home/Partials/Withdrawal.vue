@@ -1,6 +1,6 @@
 <script setup>
 import BaseListbox from "@/Components/BaseListbox.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
@@ -35,12 +35,19 @@ const submitForm = () => {
     })
 }
 
-const usdtAddress = ref(props.paymentAccounts[0].value);
-const accountNo = ref(props.paymentAccounts[0].address);
+const usdtAddress = ref('');
+const accountNo = ref('');
 watch(usdtAddress, (newValue) => {
     const matchedAddress = props.paymentAccounts.find(paymentAccount => paymentAccount.value === newValue);
     if (matchedAddress) {
         accountNo.value = matchedAddress.address;
+    }
+})
+
+onMounted(() => {
+    if (props.paymentAccounts.length > 0) {
+        usdtAddress.value = props.paymentAccounts[0].value;
+        accountNo.value = props.paymentAccounts[0].address;
     }
 })
 
@@ -92,7 +99,14 @@ watch(usdtAddress, (newValue) => {
                 :options="props.paymentAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">{{ accountNo }}</div>
+            <div class="text-gray-500 text-xs font-medium">
+                <div v-if="accountNo">
+                    {{ accountNo }}
+                </div>
+                <div v-else>
+                    loading..
+                </div>
+            </div>
             <InputError :message="form.errors.account_no" />
         </div>
 

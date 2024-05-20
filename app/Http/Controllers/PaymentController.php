@@ -50,6 +50,7 @@ class PaymentController extends Controller
 
     public function deposit(DepositRequest $request): \Illuminate\Http\RedirectResponse
     {
+        dd($request->all());
         $meta_login = $request->meta_login;
         $amount = number_format($request->deposit_amount, 2, '.', '');
 
@@ -87,35 +88,20 @@ class PaymentController extends Controller
         ]);
     }
 
-
     /**
      * ==============================
      *       Wallet to Account
      * ==============================
      */
-    public function wallet_to_account(InternalTransferRequest $request): Response
+    public function wallet_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        return Inertia::render('SuccessPage', [
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
-        ]);
         dd($request->all());
-
-        $conn = (new CTraderService)->connectionStatus();
-        if ($conn['code'] != 0) {
-            if ($conn['code'] == 10) {
-                return response()->json(['success' => false, 'message' => 'No connection with cTrader Server']);
-            }
-            return response()->json(['success' => false, 'message' => $conn['message']]);
-        }
 
         $user = Auth::user();
         $amount = floatval($request->amount);
         if ($user->cash_wallet < $amount) {
             throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
         }
-
-        dd($request->all());
 
         $payment_id = RunningNumberService::getID('transaction');
         try {
@@ -143,7 +129,7 @@ class PaymentController extends Controller
         $user->cash_wallet -= $amount;
         $user->save();
 
-        return Inertia::render('SuccessPage', [
+        return redirect()->route('success_page')->with([
             'title' => 'Success!',
             'description' => 'Your internal transfer has been successfully processed.',
         ]);
@@ -154,21 +140,9 @@ class PaymentController extends Controller
      *       Account to Wallet
      * ==============================
      */
-    public function account_to_wallet(InternalTransferRequest $request)
+    public function account_to_wallet(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        return Inertia::render('SuccessPage', [
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
-        ]);
         dd($request->all());
-
-        $conn = (new CTraderService)->connectionStatus();
-        if ($conn['code'] != 0) {
-            if ($conn['code'] == 10) {
-                return response()->json(['success' => false, 'message' => 'No connection with cTrader Server']);
-            }
-            return response()->json(['success' => false, 'message' => $conn['message']]);
-        }
 
         $user = Auth::user();
 
@@ -179,8 +153,6 @@ class PaymentController extends Controller
         if ($tradingUser->balance < $request->amount) {
             throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
         }
-
-        dd($request->all());
 
         $payment_id = RunningNumberService::getID('transaction');
         try {
@@ -210,33 +182,20 @@ class PaymentController extends Controller
         $user->cash_wallet += $request->amount;
         $user->save();
 
-        return Inertia::render('SuccessPage', [
+        return redirect()->route('success_page')->with([
             'title' => 'Success!',
             'description' => 'Your internal transfer has been successfully processed.',
         ]);
     }
-
 
     /**
      * ==============================
      *      Account to Account
      * ==============================
      */
-    public function account_to_account(InternalTransferRequest $request)
+    public function account_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        return Inertia::render('SuccessPage', [
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
-        ]);
         dd($request->all());
-
-        $conn = (new CTraderService)->connectionStatus();
-        if ($conn['code'] != 0) {
-            if ($conn['code'] == 10) {
-                return response()->json(['success' => false, 'message' => 'No connection with cTrader Server']);
-            }
-            return response()->json(['success' => false, 'message' => $conn['message']]);
-        }
 
         $user = Auth::user();
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
@@ -246,8 +205,6 @@ class PaymentController extends Controller
         if ($tradingUser->balance < $request->amount) {
             throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
         }
-
-        dd($request->all());
 
         $payment_id = RunningNumberService::getID('transaction');
         try {
@@ -285,18 +242,14 @@ class PaymentController extends Controller
 
         ]);
 
-        return Inertia::render('SuccessPage', [
+        return redirect()->route('success_page')->with([
             'title' => 'Success!',
             'description' => 'Your internal transfer has been successfully processed.',
         ]);
     }
 
-    public function withdrawal(WithdrawalRequest $request)
+    public function withdrawal(WithdrawalRequest $request): \Illuminate\Http\RedirectResponse
     {
-        return Inertia::render('SuccessPage', [
-            'title' => 'Request Sent Successful!',
-            'description' => 'Your withdrawal request will be processed within 24 hours. Please wait patiently.',
-        ]);
         dd($request->all());
 
         $user = Auth::user();
@@ -304,8 +257,6 @@ class PaymentController extends Controller
         if ($user->cash_wallet < $amount) {
             throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
         }
-
-        dd($request->all());
 
         $user->cash_wallet -= $amount;
         $user->save();
@@ -327,7 +278,7 @@ class PaymentController extends Controller
             'currency' => $payment_account->currency,
         ]);
 
-        return Inertia::render('SuccessPage', [
+        return redirect()->route('success_page')->with([
             'title' => 'Request Sent Successful!',
             'description' => 'Your withdrawal request will be processed within 24 hours. Please wait patiently.',
         ]);

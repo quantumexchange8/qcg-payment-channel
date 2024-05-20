@@ -1,6 +1,6 @@
 <script setup>
 import BaseListbox from "@/Components/BaseListbox.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Icon } from "@/Components/Icons/outline";
@@ -62,23 +62,32 @@ const submitForm = () => {
 const updateBalance = (newValue) => {
     const matchedAccount = props.tradingAccounts.find(trading_account => trading_account.value === newValue);
     if (matchedAccount) {
-        return '$ ' + matchedAccount.balance;
+        return matchedAccount.balance;
     }
 }
 
-const fromAccount = ref(props.tradingAccounts[0].value);
-const fromBalance = ref(props.tradingAccounts[0].balance);
+const fromAccount = ref('');
+const fromBalance = ref('');
 watch(fromAccount, (newValue) => {
     fromBalance.value = updateBalance(newValue);
     checkAccount(newValue);
 });
 
-const toAccount = ref(props.tradingAccounts[0].value);
-const toBalance = ref(props.tradingAccounts[0].balance);
+const toAccount = ref('');
+const toBalance = ref('');
 watch(toAccount, (newValue) => {
     toBalance.value = updateBalance(newValue);
     checkAccount(newValue);
 });
+
+onMounted(() => {
+    if (props.tradingAccounts.length > 0) {
+        fromAccount.value = props.tradingAccounts[0].value;
+        fromBalance.value = props.tradingAccounts[0].balance;
+        toAccount.value = props.tradingAccounts[0].value;
+        toBalance.value = props.tradingAccounts[0].balance;
+    }
+})
 
 // if to & from same account, display error msg
 const checkAccount = (newValue) => {
@@ -155,7 +164,14 @@ watch(transfer_mode, (newValue) => {
                 :options="props.tradingAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">Balance: {{ fromBalance }}</div>
+            <div class="text-gray-500 text-xs font-medium">
+                <div v-if="fromBalance">
+                    $ {{ fromBalance }}
+                </div>
+                <div v-else>
+                    loading..
+                </div>
+            </div>
             <InputError :message="form.errors.from_meta_login" />
         </div>
 
@@ -166,7 +182,14 @@ watch(transfer_mode, (newValue) => {
                 :options="props.tradingAccounts"
                 class="w-full"
             />
-            <div class="text-gray-500 text-xs font-medium">Balance: {{ toBalance }}</div>
+            <div class="text-gray-500 text-xs font-medium">
+                <div v-if="toBalance">
+                    $ {{ toBalance }}
+                </div>
+                <div v-else>
+                    loading..
+                </div>
+            </div>
             <InputError :message="form.errors.to_meta_login" />
         </div>
 

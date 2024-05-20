@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class InternalTransferRequest extends FormRequest
 {
@@ -21,12 +22,20 @@ class InternalTransferRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'transferMode' => ['required'],
-            'from_meta_login' => ['exclude_unless:transferMode,2','required'],
-            'to_meta_login' => ['exclude_unless:transferMode,2','required','different:from_meta_login'],
-            'amount' => ['required', 'numeric', 'min:1'],
+        $transferMode = $this->input('transferMode');
+        
+        $rules = [
+            'transferMode' => 'required',
+            'from_meta_login' => $transferMode === '1' || $transferMode === '2' ? 'required' : 'nullable',
+            'to_meta_login' => $transferMode === '0' || $transferMode === '2' ? 'required' : 'nullable',
+            'amount' => 'required|numeric|min:1',
         ];
+
+        if($transferMode === '2') {
+            $rules['to_meta_login'] .= '|different:from_meta_login';
+        }
+
+        return $rules;
     }
 
     public function attributes(): array
