@@ -83,8 +83,8 @@ class PaymentController extends Controller
         //     ->notify(new DepositRequestNotification($payment, $user));
 
         return redirect()->route('success_page')->with([
-            'title' => 'Success!',
-            'description' => 'Your deposit is now being processed.',
+            'title' => trans('public.success'),
+            'description' => trans('public.success_deposit'),
         ]);
     }
 
@@ -100,7 +100,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $amount = floatval($request->amount);
         if ($user->cash_wallet < $amount) {
-            throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
+            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
 
         $payment_id = RunningNumberService::getID('transaction');
@@ -130,8 +130,8 @@ class PaymentController extends Controller
         $user->save();
 
         return redirect()->route('success_page')->with([
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
+            'title' => trans('public.success'),
+            'description' => trans('public.success_internal_transfer'),
         ]);
     }
 
@@ -151,7 +151,7 @@ class PaymentController extends Controller
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
         if ($tradingUser->balance < $request->amount) {
-            throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
+            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
 
         $payment_id = RunningNumberService::getID('transaction');
@@ -183,8 +183,8 @@ class PaymentController extends Controller
         $user->save();
 
         return redirect()->route('success_page')->with([
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
+            'title' => trans('public.success'),
+            'description' => trans('public.success_internal_transfer'),
         ]);
     }
 
@@ -203,7 +203,7 @@ class PaymentController extends Controller
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
         if ($tradingUser->balance < $request->amount) {
-            throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
+            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
 
         $payment_id = RunningNumberService::getID('transaction');
@@ -243,8 +243,8 @@ class PaymentController extends Controller
         ]);
 
         return redirect()->route('success_page')->with([
-            'title' => 'Success!',
-            'description' => 'Your internal transfer has been successfully processed.',
+            'title' => trans('public.success'),
+            'description' => trans('public.success_internal_transfer'),
         ]);
     }
 
@@ -255,7 +255,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $amount = floatval($request->amount);
         if ($user->cash_wallet < $amount) {
-            throw ValidationException::withMessages(['amount' => trans('Insufficient balance')]);
+            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
 
         $user->cash_wallet -= $amount;
@@ -279,8 +279,8 @@ class PaymentController extends Controller
         ]);
 
         return redirect()->route('success_page')->with([
-            'title' => 'Request Sent Successful!',
-            'description' => 'Your withdrawal request will be processed within 24 hours. Please wait patiently.',
+            'title' => trans('public.success_withdrawal_title'),
+            'description' => trans('public.success_withdrawal'),
         ]);
     }
 }

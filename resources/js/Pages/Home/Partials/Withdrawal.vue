@@ -56,7 +56,7 @@ onMounted(() => {
 <template>
     <div class="mb-4 flex py-3 px-5 flex-col items-center gap-1 self-stretch rounded bg-gray-50">
         <div class="self-stretch text-gray-500 text-center text-sm font-normal">
-            Cash Wallet Balance
+            {{ $t('public.cw_balance') }}
         </div>
         <div class="self-stretch text-gray-950 text-center text-xl font-bold">
             $ {{ user.cash_wallet }}
@@ -69,17 +69,17 @@ onMounted(() => {
         </div>
         <div class="flex flex-col items-start">
             <div class="h-5 justify-center self-stretch text-gray-950 text-xs font-semibold">
-                Attention
+                {{ $t('public.attention') }}
             </div>
             <div class="self-stretch text-gray-800 text-xs font-normal">
-                Please ensure there are no open positions in your trading account to maintain a certain margin and avoid potential losses.
+                {{ $t('public.trading_acc_reminder') }}
             </div>
         </div>
     </div>
 
     <form @submit.prevent="submitForm">
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="amount" value="Amount" />
+            <InputLabel for="amount" :value="$t('public.amount')" />
             <TextInput
                 v-model="form.amount"
                 id="amount"
@@ -88,12 +88,12 @@ onMounted(() => {
                 placeholder="$ 0.00"
             />
             <!-- full amount button -->
-            <div class="text-gray-500 text-xs font-medium">Minimum withdrawal amount: $ 10.00</div>
+            <div class="text-gray-500 text-xs font-medium">{{ $t('public.min_withdrawal') }}</div>
             <InputError :message="form.errors.amount" />
         </div>
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="usdtAddress" value="Select USDT Address" />
+            <InputLabel for="usdtAddress" :value="$t('public.select_usdt')" />
             <BaseListbox
                 v-model="usdtAddress"
                 :options="props.paymentAccounts"
@@ -104,14 +104,14 @@ onMounted(() => {
                     {{ accountNo }}
                 </div>
                 <div v-else>
-                    loading..
+                    {{ $t('public.loading') }}
                 </div>
             </div>
             <InputError :message="form.errors.account_no" />
         </div>
 
         <Button variant="primary" class="w-full justify-center text-sm" :disabled="form.processing">
-            Request Withdrawal
+            {{ $t('public.request_withdrawal') }}
         </Button>
     </form>
 

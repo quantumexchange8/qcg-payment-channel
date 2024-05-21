@@ -68,7 +68,7 @@ const changeLanguage = async (langVal) => {
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button">
-                                            Log Out
+                                            {{ $t('public.log_out') }}
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>

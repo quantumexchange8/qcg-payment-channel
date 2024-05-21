@@ -146,7 +146,7 @@ const removePaymentIncentive = () => {
 <template>
     <form @submit.prevent="submitForm">
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="tradingAccount" value="Trading Account" />
+            <InputLabel for="tradingAccount" :value="$t('public.trading_account')" />
             <BaseListbox
                 v-model="account"
                 :options="tradingAccounts"
@@ -157,14 +157,14 @@ const removePaymentIncentive = () => {
                     $ {{ balance }}
                 </div>
                 <div v-else>
-                    loading..
+                    {{ $t('public.loading') }}
                 </div>
             </div>
             <InputError :message="form.errors.meta_login" />
         </div>
 
         <div class="mb-4 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="deposit_amount" value="Deposit Amount" />
+            <InputLabel for="deposit_amount" :value="$t('public.deposit_amount')" />
             <TextInput
                 v-model="form.deposit_amount"
                 id="deposit_amount"
@@ -181,10 +181,10 @@ const removePaymentIncentive = () => {
                 <div class="text-gray-950 text-base font-semibold uppercase">trc20</div>
             </div>
             <div class="text-gray-950 text-center text-xs font-normal">
-                QR code will be refreshed automatically in
+                {{ $t('public.qr_msg') }}
             </div>
             <div id="time" class="text-bilbao-700 text-center text-xs font-semibold">
-                {{ formatTime }} minutes
+                {{ formatTime }} {{ $t('public.minutes') }}
             </div>
             <div class="shrink-0">
                 <Qrcode :value="qrAddress" :size="160" render-as="svg" :margin="1" level="M" background="#F7F7F7" />
@@ -200,7 +200,7 @@ const removePaymentIncentive = () => {
                         id="copied_success"
                         class="w-32 -left-16 absolute bottom-4 p-1 mb-2 text-sm text-center text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 transition ease-in-out"
                     >
-                        Copied wallet address
+                    {{ $t('public.copied') }}
                     </div>
                 </div>
             </div>
@@ -211,24 +211,24 @@ const removePaymentIncentive = () => {
                 <Icon class="text-gray-950" />
             </div>
             <div class="text-gray-800 text-xs font-normal">
-                Please complete your deposit within the specified time. After you have successfully transferred the funds, copy your TxID and paste it in the space below, then click 'Complete Deposit'
+                {{ $t('public.deposit_reminder') }}
             </div>
         </div>
 
         <div class="mb-4 flex flex-col items-start gap-1.5">
-            <InputLabel for="txid" value="TxID" />
+            <InputLabel for="txid" :value="$t('public.txid')" />
             <TextInput
                 v-model="form.txid"
                 id="txid"
                 type="text"
                 class="block w-full"
-                placeholder="Paste your TxID here"
+                :placeholder="$t('public.paste_txid')"
             />
             <InputError :message="form.errors.txid" />
         </div>
 
         <div class="mb-8 flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="payment_receipt" value="Upload Receipt" :is_required="false" />
+            <InputLabel for="payment_receipt" :value="$t('public.upload_receipt')" :is_required="false" />
             <div class="flex gap-3">
                 <input
                     ref="paymentReceiptInput"
@@ -247,7 +247,7 @@ const removePaymentIncentive = () => {
                     v-slot="{ iconSizeClasses }"
                 >
                     <UploadIcon :class="iconSizeClasses" class="text-bilbao-800" />
-                    Browse
+                    {{ $t('public.browse') }}
                 </Button>
                 <InputError :message="form.errors.payment_receipt" class="mt-2" />
             </div>
@@ -282,7 +282,7 @@ const removePaymentIncentive = () => {
             class="w-full justify-center text-sm"
             :disabled="form.processing"
         >
-            Complete Deposit
+        {{ $t('public.complete_deposit') }}
         </Button>
     </form>
 </template>

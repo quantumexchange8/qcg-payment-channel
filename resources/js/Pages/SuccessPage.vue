@@ -30,7 +30,7 @@ const props = defineProps({
                 href="/dashboard"
                 class="w-full max-w-md justify-center text-sm"
             >
-                Return to cTrader
+                {{ $t('public.success_return') }}
             </Button>
         </div>
 </template>
