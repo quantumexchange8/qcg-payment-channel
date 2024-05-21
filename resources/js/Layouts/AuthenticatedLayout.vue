@@ -7,11 +7,14 @@ import LogoHeader from "@/Components/LogoHeader.vue";
 import { UnitedKingdomIcon } from '@/Components/Icons/brands';
 import { TaiwanIcon } from '@/Components/Icons/brands';
 import {loadLanguageAsync} from "laravel-vue-i18n";
+import {usePage} from "@inertiajs/vue3";
 
 const showingNavigationDropdown = ref(false);
+const currentLocale = ref(usePage().props.locale);
 
 const changeLanguage = async (langVal) => {
     try {
+        currentLocale.value = langVal
         await loadLanguageAsync(langVal);
         await axios.get(`/locale/${langVal}`);
     } catch (error) {
@@ -28,9 +31,11 @@ const changeLanguage = async (langVal) => {
                 <div class="flex p-3 justify-end items-center gap-3">
                     <UnitedKingdomIcon
                         @click="changeLanguage('en')"
+                        :class="{'ring ring-bilbao-800 ring-offset-2 rounded-full': currentLocale === 'en'}"
                     />
                     <TaiwanIcon
                         @click="changeLanguage('tw')"
+                        :class="{'ring ring-bilbao-800 ring-offset-2 rounded-full': currentLocale === 'tw'}"
                     />
                     <div class="hidden sm:flex sm:items-center">
                         <!-- Settings Dropdown -->
