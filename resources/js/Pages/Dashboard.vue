@@ -14,9 +14,9 @@ const props = defineProps({
 })
 
 const categories = ref({
-    Deposit: h(Deposit),
-    'Internal Transfer': h(InternalTransfer),
-    Withdrawal: h(Withdrawal),
+    deposit: h(Deposit),
+    internal_transfer: h(InternalTransfer),
+    withdrawal: h(Withdrawal),
 })
 </script>
 
@@ -42,7 +42,7 @@ const categories = ref({
                                 : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
                             ]"
                         >
-                            {{ category }}
+                            {{ $t('public.' + category) }}
                         </button>
                     </Tab>
                 </TabList>
@@ -55,7 +55,7 @@ const categories = ref({
                             'ring-transparent focus:outline-none',
                           ]"
                     >
-                        <component :is="component" 
+                        <component :is="component"
                             :tradingAccounts="tradingAccounts"
                             :walletAddresses="walletAddresses"
                             :paymentAccounts="paymentAccounts"

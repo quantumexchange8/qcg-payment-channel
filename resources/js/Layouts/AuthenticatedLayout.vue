@@ -6,8 +6,18 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import LogoHeader from "@/Components/LogoHeader.vue";
 import { UnitedKingdomIcon } from '@/Components/Icons/brands';
 import { TaiwanIcon } from '@/Components/Icons/brands';
+import {loadLanguageAsync} from "laravel-vue-i18n";
 
 const showingNavigationDropdown = ref(false);
+
+const changeLanguage = async (langVal) => {
+    try {
+        await loadLanguageAsync(langVal);
+        await axios.get(`/locale/${langVal}`);
+    } catch (error) {
+        console.error('Error changing locale:', error);
+    }
+};
 </script>
 
 <template>
@@ -16,8 +26,12 @@ const showingNavigationDropdown = ref(false);
             <nav class="max-w-md mx-auto bg-white">
                 <!-- Primary Navigation Menu -->
                 <div class="flex p-3 justify-end items-center gap-3">
-                    <UnitedKingdomIcon />
-                    <TaiwanIcon />
+                    <UnitedKingdomIcon
+                        @click="changeLanguage('en')"
+                    />
+                    <TaiwanIcon
+                        @click="changeLanguage('tw')"
+                    />
                     <div class="hidden sm:flex sm:items-center">
                         <!-- Settings Dropdown -->
                             <div class="relative">
