@@ -32,10 +32,10 @@ class DepositRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'meta_login' => 'Trading Account',
-            'deposit_amount' => 'Deposit Amount',
-            'txid' => 'TxID',
-            'payment_receipt' => 'Receipt',
+            'meta_login' => trans('public.trading_account'),
+            'deposit_amount' => trans('public.deposit_amount'),
+            'txid' => trans('public.txid'),
+            'payment_receipt' => trans('public.payment_receipt'),
         ];
     }
 }

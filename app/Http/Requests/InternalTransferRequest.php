@@ -41,10 +41,10 @@ class InternalTransferRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'transferMode' => 'Transfer Mode',
-            'from_meta_login' => 'From Trading Account',
-            'to_meta_login' => 'To Trading Account',
-            'amount' => 'Amount',
+            'transferMode' => trans('public.transfer_mode'),
+            'from_meta_login' => trans('public.from_trading_acc'),
+            'to_meta_login' => trans('public.to_trading_acc'),
+            'amount' => trans('public.amount'),
         ];
     }
 }

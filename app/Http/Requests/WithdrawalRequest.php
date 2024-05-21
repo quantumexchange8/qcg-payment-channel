@@ -30,8 +30,8 @@ class WithdrawalRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'amount' => 'Amount',
-            'account_no' => 'USDT Address',
+            'amount' => trans('public.amount'),
+            'account_no' => trans('public.account_no'),
         ];
     }
 }
