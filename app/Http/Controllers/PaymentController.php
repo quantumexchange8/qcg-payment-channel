@@ -10,7 +10,9 @@ use App\Models\PaymentAccount;
 use App\Models\SettingWalletAddress;
 use App\Models\TradingAccount;
 use App\Models\TradingUser;
+use App\Notifications\DepositRequestNotification;
 use App\Services\ChangeTraderBalanceType;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Services\CTraderService;
@@ -50,7 +52,6 @@ class PaymentController extends Controller
 
     public function deposit(DepositRequest $request): \Illuminate\Http\RedirectResponse
     {
-        dd($request->all());
         $meta_login = $request->meta_login;
         $amount = number_format($request->deposit_amount, 2, '.', '');
 
@@ -79,8 +80,8 @@ class PaymentController extends Controller
             $payment->addMedia($request->payment_receipt)->toMediaCollection('payment_receipt');
         }
 
-        // Notification::route('mail', 'payment@currenttech.pro')
-        //     ->notify(new DepositRequestNotification($payment, $user));
+         Notification::route('mail', 'payment@currenttech.pro')
+             ->notify(new DepositRequestNotification($payment, $user));
 
         return redirect()->route('success_page')->with([
             'title' => trans('public.success'),
@@ -95,8 +96,6 @@ class PaymentController extends Controller
      */
     public function wallet_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        dd($request->all());
-
         $user = Auth::user();
         $amount = floatval($request->amount);
         if ($user->cash_wallet < $amount) {
@@ -142,8 +141,6 @@ class PaymentController extends Controller
      */
     public function account_to_wallet(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        dd($request->all());
-
         $user = Auth::user();
 
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
@@ -195,8 +192,6 @@ class PaymentController extends Controller
      */
     public function account_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
     {
-        dd($request->all());
-
         $user = Auth::user();
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
         (new CTraderService)->getUserInfo([$tradingUser]);
@@ -250,8 +245,6 @@ class PaymentController extends Controller
 
     public function withdrawal(WithdrawalRequest $request): \Illuminate\Http\RedirectResponse
     {
-        dd($request->all());
-
         $user = Auth::user();
         $amount = floatval($request->amount);
         if ($user->cash_wallet < $amount) {
