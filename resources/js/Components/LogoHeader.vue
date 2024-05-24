@@ -10,7 +10,8 @@ import {Link} from "@inertiajs/vue3";
         </Link>
         <div class="flex flex-col gap-2 items-center self-stretch">
             <div class="text-center text-bilbao-800 text-base font-extrabold uppercase">
-                Quantum Capital Global Payment Channel
+                <div>Quantum Capital Global</div>
+                <div>Payment Channel</div>
             </div>
             <slot />
         </div>
