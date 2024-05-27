@@ -14,7 +14,7 @@ const props = defineProps({
     modelValue: [String, Number, Array],
     placeholder: {
         type: String,
-        default: 'Please Select'
+        default: 'please_select'
     },
     multiple: Boolean,
     error: String
@@ -50,7 +50,7 @@ const label = computed(() => {
                 ]"
             >
                 <span class="block truncate" v-if="label">{{ label }}</span>
-                <span v-else class="text-gray-400">{{ props.placeholder }}</span>
+                <span v-else class="text-gray-400">{{ $t('public.' + placeholder) }}</span>
                 <span
                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                 >

@@ -45,5 +45,5 @@ return [
     "success_withdrawal" => "Your withdrawal request will be processed within 24 hours. Please wait patiently.",
     "insufficient_balance" => "Insufficient balance",
     "log_out" => "Log out",
-
+    "please_select" => "Please select",
 ];

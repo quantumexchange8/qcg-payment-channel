@@ -45,4 +45,5 @@ return [
     "success_withdrawal" => "您的提款请求将在24小时内处理, 请耐心等待。",
     "insufficient_balance" => "余额不足",
     "log_out" => "退出登录",
+    "please_select" => "請選擇",
 ];
