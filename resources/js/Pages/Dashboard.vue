@@ -26,7 +26,7 @@ const categories = ref({
     <AuthenticatedLayout>
         <div class="w-full max-w-md">
             <TabGroup>
-                <TabList class="flex justify-center gap-3 px-3">
+                <TabList class="py-1 flex justify-center gap-3 px-3 sticky top-[9.5rem] z-10 bg-white">
                     <Tab
                         v-for="category in Object.keys(categories)"
                         as="template"
