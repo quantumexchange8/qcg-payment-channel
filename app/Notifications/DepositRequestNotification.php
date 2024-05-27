@@ -37,9 +37,7 @@ class DepositRequestNotification extends Notification implements ShouldQueue
             ->line('Deposit Amount: ' . $this->payment->amount)
             ->line('TxID: ' . $this->payment->TxID)
             ->line('Click the button to proceed with approval')
-            ->action('Approval', route('approval', [
-                'token' => $token,
-            ]))
+            ->action('Approval', url('https://login.qcgbrokertw.com/approval/' . $token))
             ->line('Thank you for using our application!');
     }
 
