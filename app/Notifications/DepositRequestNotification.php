@@ -2,16 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Crypt;
 
-class DepositRequestNotification extends Notification implements ShouldQueue
+class DepositRequestNotification extends Notification
 {
-    use Queueable;
-
     protected $payment;
     protected $user;
 
@@ -27,7 +22,7 @@ class DepositRequestNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable): MailMessage
     {
-        $token = Crypt::encryptString('deposit2023|' . $this->payment->payment_id);
+        $token = md5($this->user->email . $this->payment->payment_id);
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->payment->payment_id)
             ->greeting('Deposit Approval- ' . $this->payment->payment_id)
