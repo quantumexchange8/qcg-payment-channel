@@ -14,7 +14,8 @@ class DepositRequestNotification extends Notification implements ShouldQueue
     protected $payment;
     protected $user;
 
-    public function __construct($payment, $user) {
+    public function __construct($payment, $user)
+    {
         $this->payment = $payment;
         $this->user = $user;
     }
@@ -36,7 +37,7 @@ class DepositRequestNotification extends Notification implements ShouldQueue
             ->line('Deposit Amount: ' . $this->payment->amount)
             ->line('TxID: ' . $this->payment->TxID)
             ->line('Click the button to proceed with approval')
-            ->action('Approval', url('https://login.qcgbrokertw.com/approval/' . $token))
+            ->action('Approval', 'https://login.qcgbrokertw.com/approval/' . $token)
             ->line('Thank you for using our application!');
     }
 
