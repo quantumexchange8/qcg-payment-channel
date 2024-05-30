@@ -175,7 +175,7 @@ const removePaymentIncentive = () => {
             <InputError :message="form.errors.deposit_amount" />
         </div>
 
-        <div class="mb-4 flex p-5 flex-col justify-between items-center self-stretch rounded bg-gray-50">
+        <div class="mb-4 flex p-6 flex-col justify-between items-center self-stretch rounded bg-gray-50 gap-1">
             <div class="flex gap-3 items-center">
                 <TetherIcon />
                 <div class="text-gray-950 text-base font-semibold uppercase">trc20</div>
@@ -189,8 +189,8 @@ const removePaymentIncentive = () => {
             <div class="shrink-0">
                 <Qrcode :value="qrAddress" :size="160" render-as="svg" :margin="1" level="M" background="#F7F7F7" />
             </div>
-            <div class="flex flex-row gap-2 items-center">
-                <div class="max-w-64 h-5 whitespace-nowrap overflow-hidden text-gray-600 text-ellipsis text-xs font-normal" id="WalletCode">
+            <div class="flex flex-row gap-2 items-center flex-wrap">
+                <div class="h-5 text-gray-600 text-ellipsis text-xs font-normal" id="WalletCode">
                     {{ qrAddress }}
                 </div>
                 <div class="relative" @click="hoverCopy = true" @mouseleave="hoverCopy = false">
