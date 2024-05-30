@@ -50,7 +50,7 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function deposit(DepositRequest $request): \Illuminate\Http\RedirectResponse
+    public function deposit(DepositRequest $request)
     {
         $meta_login = $request->meta_login;
         $amount = number_format($request->deposit_amount, 2, '.', '');
@@ -71,7 +71,6 @@ class PaymentController extends Controller
             'comment' => 'Deposit',
             'amount' => $amount,
             'currency' => 'TRC20',
-            'description' => null,
             'real_amount' => $real_amount,
             'payment_charges' => $payment_charges,
         ]);
@@ -80,7 +79,7 @@ class PaymentController extends Controller
             $payment->addMedia($request->payment_receipt)->toMediaCollection('payment_receipt');
         }
 
-         Notification::route('mail', 'payment@currenttech.pro')
+        Notification::route('mail', 'payment@currenttech.pro')
              ->notify(new DepositRequestNotification($payment, $user));
 
         return redirect()->route('success_page')->with([
