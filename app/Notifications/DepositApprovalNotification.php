@@ -2,22 +2,21 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DepositRequestNotification extends Notification implements ShouldQueue
+class DepositApprovalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $payment;
-    protected $user;
 
-    public function __construct($payment, $user)
+    public function __construct($payment)
     {
         $this->payment = $payment;
-        $this->user = $user;
     }
 
     public function via($notifiable): array
@@ -27,12 +26,14 @@ class DepositRequestNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable): MailMessage
     {
-        $token = md5($this->user->email . $this->payment->payment_id);
+        $user = User::find($this->payment->user_id);
+        $token = md5($user->email . $this->payment->payment_id);
+
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->payment->payment_id)
             ->greeting('Deposit Approval- ' . $this->payment->payment_id)
-            ->line('Email: ' . $this->user->email)
-            ->line('Name: ' . $this->user->first_name)
+            ->line('Email: ' . $user->email)
+            ->line('Name: ' . $user->first_name)
             ->line('Account No: ' . $this->payment->to)
             ->line('Deposit Amount: ' . $this->payment->amount)
             ->line('TxID: ' . $this->payment->TxID)

@@ -10,7 +10,7 @@ use App\Models\PaymentAccount;
 use App\Models\SettingWalletAddress;
 use App\Models\TradingAccount;
 use App\Models\TradingUser;
-use App\Notifications\DepositRequestNotification;
+use App\Notifications\DepositApprovalNotification;
 use App\Services\ChangeTraderBalanceType;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
@@ -80,7 +80,7 @@ class PaymentController extends Controller
         }
 
         Notification::route('mail', 'payment@currenttech.pro')
-             ->notify(new DepositRequestNotification($payment, $user));
+            ->notify(new DepositApprovalNotification($payment));
 
         return redirect()->route('success_page')->with([
             'title' => trans('public.success'),
