@@ -39,7 +39,7 @@ return [
     "request_withdrawal" => "Request Withdrawal",
     "success" => "Success!",
     "success_deposit" => "Your deposit is now being processed.",
-    "success_return" => "Return to cTrader",
+    "success_return" => "Return",
     "success_internal_transfer" => "Your internal transfer has been successfully processed.",
     "success_withdrawal_title" => "Request Sent Successful!",
     "success_withdrawal" => "Your withdrawal request will be processed within 24 hours. Please wait patiently.",

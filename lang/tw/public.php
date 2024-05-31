@@ -39,7 +39,7 @@ return [
     "request_withdrawal" => "请求提款",
     "success" => "成功！",
     "success_deposit" => "您的存款正在处理中。",
-    "success_return" => "返回 cTrader",
+    "success_return" => "返回",
     "success_internal_transfer" => "您的内部转账已成功处理。",
     "success_withdrawal_title" => "请求发送成功！",
     "success_withdrawal" => "您的提款请求将在24小时内处理, 请耐心等待。",

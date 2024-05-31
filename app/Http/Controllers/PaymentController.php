@@ -12,6 +12,8 @@ use App\Models\TradingAccount;
 use App\Models\TradingUser;
 use App\Notifications\DepositApprovalNotification;
 use App\Services\ChangeTraderBalanceType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,6 +28,12 @@ class PaymentController extends Controller
     public function index(): Response
     {
         $user_id = Auth::user()->id;
+
+        if (App::environment('production')) {
+            $tradingUsers = TradingUser::where('user_id', $user_id)->get();
+            (new CTraderService)->getUserInfo($tradingUsers);
+        }
+
         $trading_accounts = TradingAccount::where('user_id', $user_id)->get()->map(function ($trading_account) {
             return [
                 'value' => $trading_account->meta_login,
@@ -93,7 +101,7 @@ class PaymentController extends Controller
      *       Wallet to Account
      * ==============================
      */
-    public function wallet_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
+    public function wallet_to_account(InternalTransferRequest $request)
     {
         $user = Auth::user();
         $amount = floatval($request->amount);
@@ -138,7 +146,7 @@ class PaymentController extends Controller
      *       Account to Wallet
      * ==============================
      */
-    public function account_to_wallet(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
+    public function account_to_wallet(InternalTransferRequest $request)
     {
         $user = Auth::user();
 
@@ -189,13 +197,14 @@ class PaymentController extends Controller
      *      Account to Account
      * ==============================
      */
-    public function account_to_account(InternalTransferRequest $request): \Illuminate\Http\RedirectResponse
+    public function account_to_account(Request $request)
     {
         $user = Auth::user();
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
         (new CTraderService)->getUserInfo([$tradingUser]);
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
+        dd($tradingUser->balance);
         if ($tradingUser->balance < $request->amount) {
             throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
@@ -242,7 +251,7 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function withdrawal(WithdrawalRequest $request): \Illuminate\Http\RedirectResponse
+    public function withdrawal(WithdrawalRequest $request)
     {
         $user = Auth::user();
         $amount = floatval($request->amount);

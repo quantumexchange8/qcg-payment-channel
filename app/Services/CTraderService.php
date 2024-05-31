@@ -3,10 +3,6 @@
 namespace App\Services;
 
 use AleeDhillon\MetaFive\Entities\Trade;
-use App\Models\TradingUser;
-use App\Models\User as UserModel;
-use App\Services\Auth\CreateTradingAccount;
-use App\Services\Auth\CreateTradingUser;
 use App\Services\Data\UpdateTradingAccount;
 use App\Services\Data\UpdateTradingUser;
 use Illuminate\Support\Facades\Http;
