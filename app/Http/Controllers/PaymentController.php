@@ -31,6 +31,7 @@ class PaymentController extends Controller
 
         if (App::environment('production')) {
             $tradingUsers = TradingUser::where('user_id', $user_id)->get();
+            Log::debug('update ctrader => '. $tradingUsers);
             (new CTraderService)->getUserInfo($tradingUsers);
         }
 
