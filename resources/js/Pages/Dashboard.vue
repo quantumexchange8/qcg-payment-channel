@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import {h, ref} from 'vue'
+import {h, onMounted, ref} from 'vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import Deposit from "@/Pages/Home/Partials/Deposit.vue";
 import InternalTransfer from "@/Pages/Home/Partials/InternalTransfer.vue";
@@ -18,6 +18,29 @@ const categories = ref({
     internal_transfer: h(InternalTransfer),
     withdrawal: h(Withdrawal),
 })
+
+const type = ref('Deposit');
+const selectedTab = ref(0);
+function changeTab(index) {
+    selectedTab.value = index;
+}
+
+const updateTransactionType = (transaction_type) => {
+    type.value = transaction_type
+};
+
+onMounted(() => {
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+    if (params.status === 'Deposit'){
+        selectedTab.value = 0;
+        type.value = 'Deposit';
+    } else if (params.status === 'Withdrawal') {
+        selectedTab.value = 2;
+        type.value = 'Withdrawal';
+    }
+});
 </script>
 
 <template>
@@ -25,7 +48,7 @@ const categories = ref({
 
     <AuthenticatedLayout>
         <div class="w-full max-w-md">
-            <TabGroup>
+            <TabGroup :selectedIndex="selectedTab" @change="changeTab">
                 <TabList class="py-1 flex justify-center gap-3 px-3 sticky top-[9.5rem] z-10 bg-white">
                     <Tab
                         v-for="category in Object.keys(categories)"
@@ -41,6 +64,7 @@ const categories = ref({
                                 ? 'bg-bilbao-100 text-bilbao-800'
                                 : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
                             ]"
+                            @click="updateTransactionType(category)"
                         >
                             {{ $t('public.' + category) }}
                         </button>
