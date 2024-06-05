@@ -48,7 +48,6 @@ class CTraderService
             'source' => '', //
             'externalId' => '', // */
         ]);
-        Log::debug($response);
         $response = $response->json();
         Log::debug($response);
         $trade = new Trade();
