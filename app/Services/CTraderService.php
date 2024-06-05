@@ -67,7 +67,6 @@ class CTraderService
     {
         foreach ($trading_users as $row) {
             $data = $this->getUser($row->meta_login);
-            Log::debug('ctrader no account data => ' . $data);
             if ($data) {
                 (new UpdateTradingUser)->execute($row->meta_login, $data);
                 (new UpdateTradingAccount)->execute($row->meta_login, $data);

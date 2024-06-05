@@ -204,7 +204,6 @@ class PaymentController extends Controller
         (new CTraderService)->getUserInfo([$tradingUser]);
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
-        dd($tradingUser->balance);
         if ($tradingUser->balance < $request->amount) {
             throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         }
