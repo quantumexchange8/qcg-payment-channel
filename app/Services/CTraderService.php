@@ -66,6 +66,7 @@ class CTraderService
     public function getUserInfo($trading_users): void
     {
         foreach ($trading_users as $row) {
+            Log::debug($row->meta_login);
             $data = $this->getUser($row->meta_login);
             (new UpdateTradingUser)->execute($row->meta_login, $data);
             (new UpdateTradingAccount)->execute($row->meta_login, $data);
