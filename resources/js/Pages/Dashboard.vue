@@ -19,15 +19,10 @@ const categories = ref({
     withdrawal: h(Withdrawal),
 })
 
-const type = ref('Deposit');
 const selectedTab = ref(0);
 function changeTab(index) {
     selectedTab.value = index;
 }
-
-const updateTransactionType = (transaction_type) => {
-    type.value = transaction_type
-};
 
 onMounted(() => {
     const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -35,10 +30,8 @@ onMounted(() => {
     });
     if (params.status === 'Deposit'){
         selectedTab.value = 0;
-        type.value = 'Deposit';
     } else if (params.status === 'Withdrawal') {
         selectedTab.value = 2;
-        type.value = 'Withdrawal';
     }
 });
 </script>
@@ -64,7 +57,6 @@ onMounted(() => {
                                 ? 'bg-bilbao-100 text-bilbao-800'
                                 : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
                             ]"
-                            @click="updateTransactionType(category)"
                         >
                             {{ $t('public.' + category) }}
                         </button>
