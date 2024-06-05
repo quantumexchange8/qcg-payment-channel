@@ -28,9 +28,10 @@ onMounted(() => {
     const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
     });
-    if (params.status === 'Deposit'){
+
+    if (params.status === 'deposit') {
         selectedTab.value = 0;
-    } else if (params.status === 'Withdrawal') {
+    } else if (params.status === 'withdrawal') {
         selectedTab.value = 2;
     }
 });
