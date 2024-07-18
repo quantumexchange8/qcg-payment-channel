@@ -10,6 +10,7 @@ use App\Models\PaymentAccount;
 use App\Models\SettingWalletAddress;
 use App\Models\TradingAccount;
 use App\Models\TradingUser;
+use App\Models\User;
 use App\Notifications\DepositApprovalNotification;
 use App\Services\ChangeTraderBalanceType;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ use App\Services\RunningNumberService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -42,7 +44,7 @@ class PaymentController extends Controller
             ];
         });
 
-        $wallet_addresses = SettingWalletAddress::all()->pluck('wallet_address')->shuffle();
+        // $wallet_addresses = SettingWalletAddress::all()->pluck('wallet_address')->shuffle();
         $payment_accounts = PaymentAccount::where('user_id', $user_id)->get()->map(function ($payment_account) {
             return [
                 'value' => $payment_account->id,
@@ -53,7 +55,6 @@ class PaymentController extends Controller
 
         return Inertia::render('Dashboard', [
             'tradingAccounts' => $trading_accounts,
-            'walletAddresses' => $wallet_addresses,
             'paymentAccounts' => $payment_accounts,
         ]);
     }
@@ -83,17 +84,136 @@ class PaymentController extends Controller
             'payment_charges' => $payment_charges,
         ]);
 
-        if ($request->hasFile('payment_receipt')) {
-            $payment->addMedia($request->payment_receipt)->toMediaCollection('payment_receipt');
+        $token = Str::random(40);
+
+        $payoutSetting = config('payment-gateway');
+        $domain = $_SERVER['HTTP_HOST'];
+        $intAmount = intval($amount * 1000000);
+
+        if ($domain === 'deposit.qcgbrokertw.com') {
+            $selectedPayout = $payoutSetting['live'];
+        } else {
+            $selectedPayout = $payoutSetting['staging'];
         }
 
-        Notification::route('mail', 'payment@currenttech.pro')
+        $vCode = md5($intAmount . $selectedPayout['appId'] . $payment->payment_id . $selectedPayout['merchantId']);
+
+        $params = [
+            'userName' => $user->name,
+            'userEmail' => $user->email,
+            'amount' => $intAmount,
+            'orderNumber' => $payment->payment_id,
+            'userId' => $user->id,
+            'merchantId' => $selectedPayout['merchantId'],
+            'vCode' => $vCode,
+            'token' => $token,
+        ];
+
+        // Send response
+        $url = $selectedPayout['paymentUrl'] . '/payment';
+        $redirectUrl = $url . "?" . http_build_query($params);
+
+        return Inertia::location($redirectUrl);
+    }
+
+    //payment gateway return function
+    public function depositReturn(Request $request)
+    {
+        $data = $request->all();
+
+        Log::debug('deposit return ', $data);
+
+        if ($data['response_status'] == 'success') {
+
+            $result = [
+                "amount" => $data['transfer_amount'],
+                "payment_id" => $data['transaction_number'],
+                "txid" => $data['txID'],
+            ];
+
+            $payment = Payment::query()
+            ->where('payment_id', $result['payment_id'])
+            ->first();
+            
+            $result['date'] = $payment->approval_date;
+
+            return to_route('success_page')->with([
+                'title' => trans('public.success'),
+                'description' => trans('public.success_deposit'),
+                'payment' => $result
+            ]);
+        } else {
+            return to_route('dashboard');
+        }
+    }
+
+    public function depositCallback(Request $request)
+    {
+        $data = $request->all();
+
+        $result = [
+            "token" => $data['vCode'],
+            "from_wallet_address" => $data['from_wallet'],
+            "to_wallet_address" => $data['to_wallet'],
+            "txn_hash" => $data['txID'],
+            "transactionID" => $data['transaction_number'],
+            "amount" => $data['transfer_amount'],
+            "status" => $data["status"],
+            "remarks" => 'System Approval',
+        ];
+
+        $payment = Payment::query()
+            ->where('payment_id', $result['transactionID'])
+            ->first();
+
+        $payoutSetting = config('payment-gateway');
+        $domain = $_SERVER['HTTP_HOST'];
+
+        if ($domain === 'deposit.qcgbrokertw.com') {
+            $selectedPayout = $payoutSetting['live'];
+        } else {
+            $selectedPayout = $payoutSetting['staging'];
+        }
+
+        $dataToHash = md5($payment->transaction_number . 'qcg' . $selectedPayout['merchantId']);
+
+        if ($result['token'] === $dataToHash) {
+            //proceed approval
+            $payment->update([
+                'TxID' => $result['txn_hash'],
+                'amount' => $result['amount'],
+                'real_amount' => $result['amount'],
+                'status' => $result['status'],
+                'remarks' => $result['remarks'],
+                'approval_date' => date('Y-m-d')
+            ]);
+
+            Notification::route('mail', 'payment@currenttech.pro')
             ->notify(new DepositApprovalNotification($payment));
 
-        return redirect()->route('success_page')->with([
-            'title' => trans('public.success'),
-            'description' => trans('public.success_deposit'),
-        ]);
+            if ($payment->status =='Successful') {
+                if ($payment->type == 'Deposit') {
+                    try {
+                        $trade = (new CTraderService)->createTrade($payment->to, $payment->amount, "Deposit", ChangeTraderBalanceType::DEPOSIT);
+                    } catch (\Throwable $e) {
+                        if ($e->getMessage() == "Not found") {
+                            TradingUser::firstWhere('meta_login', $payment->to)->update(['acc_status' => 'Inactive']);
+                        } else {
+                            Log::error($e->getMessage());
+                        }
+                        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+                    }
+                    $ticket = $trade->getTicket();
+                    $payment->ticket = $ticket;
+                    $payment->save();
+
+                    return response()->json(['success' => true, 'message' => 'Deposit Success']);
+
+                }
+            }
+        }
+
+        return response()->json(['success' => false, 'message' => 'Deposit Failed']);
     }
 
     /**

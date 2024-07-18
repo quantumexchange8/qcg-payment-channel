@@ -46,4 +46,10 @@ return [
     "insufficient_balance" => "Insufficient balance",
     "log_out" => "Log out",
     "please_select" => "Please select",
+    "date" => "Date",
+    "deposit_note" => "Note: The deposit amount includes a fee charge. The actual amount credited to your wallet will be slightly lower. To avoid insufficient funds, consider depositing a bit more.",
+    "deposit_now" => "Deposit Now",
+    "copy_link" => "Copy link",
+    "copied" => "Copied!",
+    "try_again_later" => "Please try again later!",
 ];

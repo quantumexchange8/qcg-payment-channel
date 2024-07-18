@@ -19,7 +19,11 @@ Route::get('locale/{locale}', function ($locale) {
     return redirect()->back();
 });
 
+Route::post('deposit_callback', [PaymentController::class, 'depositCallback'])->name('depositCallback');
+
 Route::middleware('auth')->group(function () {
+    Route::get('deposit_return', [PaymentController::class, 'depositReturn']);
+
     Route::get('/dashboard', [PaymentController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/deposit', [PaymentController::class, 'deposit'])->name('dashboard.deposit');
     Route::post('/dashboard/walletToAccount', [PaymentController::class, 'wallet_to_account'])->name('dashboard.walletToAccount');
@@ -32,6 +36,7 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('SuccessPage', [
             'title' => session('title'),
             'description' => session('description'),
+            'payment' => session('payment'),
         ]);
     })->name('success_page');
 

@@ -12,7 +12,6 @@ import { trans } from "laravel-vue-i18n";
 const user = usePage().props.auth.user;
 const props = defineProps({
     tradingAccounts: Array,
-    walletAddresses: Array,
     paymentAccounts: Array,
 })
 

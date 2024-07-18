@@ -11,7 +11,6 @@ import InputError from "@/Components/InputError.vue";
 const user = usePage().props.auth.user;
 const props = defineProps({
     tradingAccounts: Array,
-    walletAddresses: Array,
     paymentAccounts: Array,
 })
 
