@@ -134,7 +134,7 @@ class PaymentController extends Controller
             $payment = Payment::query()
             ->where('payment_id', $result['payment_id'])
             ->first();
-            
+
             $result['date'] = $payment->approval_date;
 
             return to_route('success_page')->with([
@@ -176,6 +176,7 @@ class PaymentController extends Controller
         }
 
         $dataToHash = md5($payment->transaction_number . 'qcg' . $selectedPayout['merchantId']);
+        $status = $result['status'] == 'success' ? 'Successful' : 'Rejected';
 
         if ($result['token'] === $dataToHash) {
             //proceed approval
@@ -183,7 +184,7 @@ class PaymentController extends Controller
                 'TxID' => $result['txn_hash'],
                 'amount' => $result['amount'],
                 'real_amount' => $result['amount'],
-                'status' => $result['status'],
+                'status' => $status,
                 'remarks' => $result['remarks'],
                 'approval_date' => date('Y-m-d')
             ]);
