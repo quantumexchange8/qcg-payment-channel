@@ -88,7 +88,6 @@ class PaymentController extends Controller
 
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
-        $intAmount = intval($amount * 1000000);
 
         if ($domain === 'deposit.qcgbrokertw.com') {
             $selectedPayout = $payoutSetting['live'];
@@ -96,12 +95,11 @@ class PaymentController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $vCode = md5($intAmount . $selectedPayout['appId'] . $payment->payment_id . $selectedPayout['merchantId']);
+        $vCode = md5($selectedPayout['appId'] . $payment->payment_id . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
             'userName' => $user->name,
             'userEmail' => $user->email,
-            'amount' => $intAmount,
             'orderNumber' => $payment->payment_id,
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
