@@ -52,4 +52,6 @@ return [
     "copy_link" => "Copy link",
     "copied" => "Copied!",
     "try_again_later" => "Please try again later!",
+    "qcg_company_name" => "Quantum Capital Group",
+    "payment_channel" => "Payment Channel",
 ];

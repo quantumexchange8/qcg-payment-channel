@@ -1,15 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import LogoHeader from "@/Components/LogoHeader.vue";
-import { UnitedKingdomIcon } from '@/Components/Icons/brands';
-import { TaiwanIcon } from '@/Components/Icons/brands';
+import { IconWorld } from '@tabler/icons-vue';
+import { IconLogout } from '@tabler/icons-vue';
 import {loadLanguageAsync} from "laravel-vue-i18n";
 import {usePage} from "@inertiajs/vue3";
+import { Link } from '@inertiajs/vue3'
 
-const showingNavigationDropdown = ref(false);
 const currentLocale = ref(usePage().props.locale);
 
 const changeLanguage = async (langVal) => {
@@ -26,71 +24,46 @@ const changeLanguage = async (langVal) => {
 <template>
     <div>
         <div class="min-h-screen bg-white">
-            <nav class="max-w-md mx-auto bg-white sticky top-0 z-10">
+            <nav class="max-w-md mx-auto bg-white sticky top-0 z-20">
                 <!-- Primary Navigation Menu -->
                 <div class="flex p-3 justify-end items-center gap-3">
-                    <UnitedKingdomIcon
-                        @click="changeLanguage('en')"
-                        :class="{'ring ring-bilbao-800 ring-offset-2 rounded-full': currentLocale === 'en'}"
-                    />
-                    <TaiwanIcon
-                        @click="changeLanguage('tw')"
-                        :class="{'ring ring-bilbao-800 ring-offset-2 rounded-full': currentLocale === 'tw'}"
-                    />
-<!--                    &lt;!&ndash; Hamburger &ndash;&gt;-->
-<!--                    <div class="-me-2 flex items-center sm:hidden">-->
-<!--                        <button-->
-<!--                            @click="showingNavigationDropdown = !showingNavigationDropdown"-->
-<!--                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"-->
-<!--                        >-->
-<!--                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">-->
-<!--                                <path-->
-<!--                                    :class="{-->
-<!--                                        hidden: showingNavigationDropdown,-->
-<!--                                        'inline-flex': !showingNavigationDropdown,-->
-<!--                                    }"-->
-<!--                                    stroke-linecap="round"-->
-<!--                                    stroke-linejoin="round"-->
-<!--                                    stroke-width="2"-->
-<!--                                    d="M4 6h16M4 12h16M4 18h16"-->
-<!--                                />-->
-<!--                                <path-->
-<!--                                    :class="{-->
-<!--                                        hidden: !showingNavigationDropdown,-->
-<!--                                        'inline-flex': showingNavigationDropdown,-->
-<!--                                    }"-->
-<!--                                    stroke-linecap="round"-->
-<!--                                    stroke-linejoin="round"-->
-<!--                                    stroke-width="2"-->
-<!--                                    d="M6 18L18 6M6 6l12 12"-->
-<!--                                />-->
-<!--                            </svg>-->
-<!--                        </button>-->
-<!--                    </div>-->
+                    <div class="flex justify-end">
+                            <!-- Language Dropdown -->
+                            <div class="ms-3 relative">
+                                <Dropdown align="right" width="20">
+                                    <template #trigger>
+                                        <span class="inline-flex rounded-md">
+                                            <button @click="logout" class="flex items-center px-2 py-2">
+                                                <IconWorld :size="24" stroke-width="1" />
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <ul class="py-1">
+                                            <li 
+                                                @click="changeLanguage('en')"
+                                                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-center select-none hover:cursor-pointer"
+                                            >
+                                                English
+                                            </li>
+                                            <li 
+                                                @click="changeLanguage('tw')"
+                                                class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-center select-none hover:cursor-pointer"
+                                            >
+                                                中文
+                                            </li>
+                                        </ul>
+                                    </template>
+                                </Dropdown>
+                            </div>
+                        </div>
+                        <Link :href="route('logout')" method="post" as="button">
+                            <button @click="logout" class="flex items-center px-2 py-2">
+                                <IconLogout :size="24" stroke-width="1" />
+                            </button>
+                        </Link>
                 </div>
-
-                <!-- Responsive Navigation Menu -->
-<!--                <div-->
-<!--                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"-->
-<!--                    class="sm:hidden"-->
-<!--                >-->
-<!--                    &lt;!&ndash; Responsive Settings Options &ndash;&gt;-->
-<!--                    <div class="pt-4 pb-1 border-t border-gray-200">-->
-<!--                        <div class="px-4">-->
-<!--                            <div class="font-medium text-base text-gray-800">-->
-<!--                                {{ $page.props.auth.user.name }}-->
-<!--                            </div>-->
-<!--                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>-->
-<!--                        </div>-->
-
-<!--                        <div class="mt-3 space-y-1">-->
-<!--                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>-->
-<!--                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">-->
-<!--                                Log Out-->
-<!--                            </ResponsiveNavLink>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
             </nav>
 
             <div class="flex flex-col gap-8 py-5">
@@ -105,3 +78,4 @@ const changeLanguage = async (langVal) => {
         </div>
     </div>
 </template>
+

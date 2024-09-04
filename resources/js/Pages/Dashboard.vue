@@ -58,7 +58,7 @@ onMounted(() => {
                                 : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
                             ]"
                         >
-                            {{ $t('public.' + category) }}
+                            {{ $t(`public.${category}`) }}
                         </button>
                     </Tab>
                 </TabList>

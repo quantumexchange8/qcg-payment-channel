@@ -52,4 +52,6 @@ return [
     "copy_link" => "複製連結",
     "copied" => "已複製!",
     "try_again_later" => "請稍後再試!",
+    "qcg_company_name" => "量子資本集團",
+    "payment_channel" => "支付平台",
 ];
