@@ -37,6 +37,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
             ->line('Account No: ' . $this->payment->to)
             ->line('Deposit Amount: ' . $this->payment->amount)
             ->line('TxID: ' . $this->payment->TxID)
+            ->line('Platform: QCG Payment Channel')
             ->line('Click the button to proceed with approval')
             ->action('Approval', 'https://login.qcgbrokertw.com/approval/' . $token)
             ->line('Thank you for using our application!');

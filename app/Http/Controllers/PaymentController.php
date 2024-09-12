@@ -98,13 +98,14 @@ class PaymentController extends Controller
         $vCode = md5($selectedPayout['appId'] . $payment->payment_id . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
-            'userName' => $user->name,
+            'userName' => $user->first_name,
             'userEmail' => $user->email,
             'orderNumber' => $payment->payment_id,
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'token' => $token,
+            'locale' => app()->getLocale(),
         ];
 
         // Send response
