@@ -174,7 +174,7 @@ class PaymentController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $dataToHash = md5($payment->transaction_number . 'qcg' . $selectedPayout['merchantId']);
+        $dataToHash = md5($payment->payment_id . $selectedPayout['appId'] . $selectedPayout['merchantId']);
         $status = $result['status'] == 'success' ? 'Successful' : 'Rejected';
 
         if ($result['token'] === $dataToHash) {
