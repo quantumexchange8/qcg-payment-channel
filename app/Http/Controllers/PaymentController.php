@@ -184,7 +184,7 @@ class PaymentController extends Controller
                 'amount' => $result['amount'],
                 'real_amount' => $result['amount'],
                 'status' => $status,
-                'remarks' => $result['remarks'],
+                'comment' => $result['remarks'],
                 'approval_date' => date('Y-m-d')
             ]);
 
