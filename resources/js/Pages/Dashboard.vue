@@ -14,8 +14,8 @@ const props = defineProps({
 
 const categories = ref({
     deposit: h(Deposit),
-    internal_transfer: h(InternalTransfer),
-    withdrawal: h(Withdrawal),
+    // internal_transfer: h(InternalTransfer),
+    // withdrawal: h(Withdrawal),
 })
 
 const selectedTab = ref(0);

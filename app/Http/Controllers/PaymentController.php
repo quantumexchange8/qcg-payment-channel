@@ -10,6 +10,7 @@ use App\Models\PaymentAccount;
 use App\Models\SettingWalletAddress;
 use App\Models\TradingAccount;
 use App\Models\TradingUser;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Notifications\DepositApprovalNotification;
 use App\Services\ChangeTraderBalanceType;
@@ -61,27 +62,15 @@ class PaymentController extends Controller
 
     public function deposit(DepositRequest $request)
     {
-        $meta_login = $request->meta_login;
-        $amount = number_format($request->deposit_amount, 2, '.', '');
-
-        $payment_id = RunningNumberService::getID('transaction');
-        $payment_charges = null;
-        $real_amount = $amount;
         $user = Auth::user();
 
-        $payment = Payment::create([
-            'to' => $meta_login,
+        $transaction = Transaction::create([
             'user_id' => $user->id,
-            'category' => 'payment',
-            'payment_id' => $payment_id,
-            'type' => 'Deposit',
-            'channel' => 'crypto',
-            'TxID' => $request->txid,
-            'comment' => 'Deposit',
-            'amount' => $amount,
-            'currency' => 'TRC20',
-            'real_amount' => $real_amount,
-            'payment_charges' => $payment_charges,
+            'category' => 'trading_account',
+            'transaction_type' => 'deposit',
+            'to_meta_login' => $request->meta_login,
+            'transaction_number' => RunningNumberService::getID('transaction'),
+            'status' => 'processing',
         ]);
 
         $token = Str::random(40);
@@ -95,12 +84,12 @@ class PaymentController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $vCode = md5($selectedPayout['appId'] . $payment->payment_id . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
+        $vCode = md5($selectedPayout['appId'] . $transaction->payment_id . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
             'userName' => $user->first_name,
             'userEmail' => $user->email,
-            'orderNumber' => $payment->payment_id,
+            'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
@@ -130,11 +119,11 @@ class PaymentController extends Controller
                 "txid" => $data['txID'],
             ];
 
-            $payment = Payment::query()
-            ->where('payment_id', $result['payment_id'])
-            ->first();
+            $transaction = Transaction::query()
+                ->where('transaction_number', $result['payment_id'])
+                ->first();
 
-            $result['date'] = $payment->approval_date;
+            $result['date'] = $transaction->approved_at;
 
             return to_route('success_page')->with([
                 'title' => trans('public.success'),
@@ -161,8 +150,8 @@ class PaymentController extends Controller
             "remarks" => 'System Approval',
         ];
 
-        $payment = Payment::query()
-            ->where('payment_id', $result['transactionID'])
+        $transaction = Transaction::query()
+            ->where('transaction_number', $result['transactionID'])
             ->first();
 
         $payoutSetting = config('payment-gateway');
@@ -174,41 +163,43 @@ class PaymentController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $dataToHash = md5($payment->payment_id . $selectedPayout['appId'] . $selectedPayout['merchantId']);
-        $status = $result['status'] == 'success' ? 'Successful' : 'Rejected';
+        $dataToHash = md5($transaction->transaction_number . $selectedPayout['appId'] . $selectedPayout['merchantId']);
+        $status = $result['status'] == 'success' ? 'successful' : 'failed';
 
         if ($result['token'] === $dataToHash) {
             //proceed approval
-            $payment->update([
-                'TxID' => $result['txn_hash'],
+            $transaction->update([
+                'from_wallet_address' => $result['from_wallet_address'],
+                'to_wallet_address' => $result['to_wallet_address'],
+                'txn_hash' => $result['txn_hash'],
                 'amount' => $result['amount'],
-                'real_amount' => $result['amount'],
+                'transaction_charges' => 0,
+                'transaction_amount' => $result['amount'],
                 'status' => $status,
-                'comment' => $result['remarks'],
-                'approval_date' => date('Y-m-d')
+                'remarks' => $result['remarks'],
+                'approved_at' => now(),
             ]);
 
             Notification::route('mail', 'payment@currenttech.pro')
-            ->notify(new DepositApprovalNotification($payment));
+            ->notify(new DepositApprovalNotification($transaction));
 
-            if ($payment->status =='Successful') {
-                if ($payment->type == 'Deposit') {
+            if ($transaction->status =='successful') {
+                if ($transaction->transaction_type == 'deposit') {
                     try {
-                        $trade = (new CTraderService)->createTrade($payment->to, $payment->amount, "Deposit", ChangeTraderBalanceType::DEPOSIT);
+                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->amount, "Deposit", ChangeTraderBalanceType::DEPOSIT);
                     } catch (\Throwable $e) {
                         if ($e->getMessage() == "Not found") {
-                            TradingUser::firstWhere('meta_login', $payment->to)->update(['acc_status' => 'Inactive']);
+                            TradingUser::firstWhere('meta_login', $transaction->to_meta_login)->update(['acc_status' => 'Inactive']);
                         } else {
                             Log::error($e->getMessage());
                         }
                         return response()->json(['success' => false, 'message' => $e->getMessage()]);
                     }
                     $ticket = $trade->getTicket();
-                    $payment->ticket = $ticket;
-                    $payment->save();
+                    $transaction->ticket = $ticket;
+                    $transaction->save();
 
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
-
                 }
             }
         }

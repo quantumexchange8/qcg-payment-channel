@@ -12,11 +12,11 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $payment;
+    protected $transaction;
 
-    public function __construct($payment)
+    public function __construct($transaction)
     {
-        $this->payment = $payment;
+        $this->transaction = $transaction;
     }
 
     public function via($notifiable): array
@@ -26,20 +26,20 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable): MailMessage
     {
-        $user = User::find($this->payment->user_id);
-        $token = md5($user->email . $this->payment->payment_id);
+        $user = User::find($this->transaction->user_id);
+        $token = md5($user->email . $this->transaction->transaction_number);
 
         return (new MailMessage)
-            ->subject('Deposit Approval - ' . $this->payment->payment_id)
-            ->greeting('Deposit Approval- ' . $this->payment->payment_id)
+            ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
+            ->greeting('Deposit Approval- ' . $this->transaction->transaction_number)
             ->line('Email: ' . $user->email)
             ->line('Name: ' . $user->first_name)
-            ->line('Account No: ' . $this->payment->to)
-            ->line('Deposit Amount: ' . $this->payment->amount)
-            ->line('TxID: ' . $this->payment->TxID)
+            ->line('Account No: ' . $this->transaction->to_meta_login)
+            ->line('Deposit Amount: ' . $this->transaction->amount)
+            ->line('TxID: ' . $this->transaction->txn_hash)
             ->line('Platform: QCG Payment Channel')
             ->line('Click the button to proceed with approval')
-            ->action('Approval', 'https://login.qcgbrokertw.com/approval/' . $token)
+            ->action('Approval', 'https://login.qcgexchange.com/approval/' . $token)
             ->line('Thank you for using our application!');
     }
 
