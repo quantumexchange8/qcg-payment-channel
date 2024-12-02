@@ -180,9 +180,6 @@ class PaymentController extends Controller
                 'approved_at' => now(),
             ]);
 
-            Notification::route('mail', 'payment@currenttech.pro')
-            ->notify(new DepositApprovalNotification($transaction));
-
             if ($transaction->status =='successful') {
                 if ($transaction->transaction_type == 'deposit') {
                     try {
@@ -198,6 +195,9 @@ class PaymentController extends Controller
                     $ticket = $trade->getTicket();
                     $transaction->ticket = $ticket;
                     $transaction->save();
+
+                    Notification::route('mail', 'payment@currenttech.pro')
+                        ->notify(new DepositApprovalNotification($transaction));
 
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
                 }
