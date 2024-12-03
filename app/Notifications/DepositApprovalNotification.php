@@ -31,15 +31,15 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
-            ->greeting('Deposit Approval- ' . $this->transaction->transaction_number)
+            ->greeting('Deposit Approval - ' . $this->transaction->transaction_number)
             ->line('Email: ' . $user->email)
             ->line('Name: ' . $user->first_name)
             ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
+            ->line('From: cTrader')
             ->line('TxID: ' . $this->transaction->txn_hash)
-            ->line('Platform: QCG Payment Channel')
             ->line('Click the button to proceed with approval')
-            ->action('Approval', 'https://login.qcgexchange.com/approval/' . $token)
+            ->action('View', 'https://login.qcgexchange.com/approval/' . $token)
             ->line('Thank you for using our application!');
     }
 
