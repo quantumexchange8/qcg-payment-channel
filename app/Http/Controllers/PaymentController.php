@@ -64,16 +64,21 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        $transaction = Transaction::create([
-            'user_id' => $user->id,
-            'category' => 'trading_account',
-            'transaction_type' => 'deposit',
-            'to_meta_login' => $request->meta_login,
-            'transaction_number' => RunningNumberService::getID('transaction'),
-            'status' => 'processing',
-        ]);
+        $transaction = Transaction::where('transaction_type', 'deposit')
+            ->where('to_meta_login', $request->meta_login)
+            ->where('status', 'processing')
+            ->first();
 
-        $token = Str::random(40);
+        if (empty($transaction)) {
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'category' => 'trading_account',
+                'transaction_type' => 'deposit',
+                'to_meta_login' => $request->meta_login,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'status' => 'processing',
+            ]);
+        }
 
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
@@ -93,7 +98,6 @@ class PaymentController extends Controller
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
-            'token' => $token,
             'locale' => app()->getLocale(),
         ];
 
@@ -107,32 +111,7 @@ class PaymentController extends Controller
     //payment gateway return function
     public function depositReturn(Request $request)
     {
-        $data = $request->all();
-
-        Log::debug('deposit return ', $data);
-
-        if ($data['response_status'] == 'success') {
-
-            $result = [
-                "amount" => $data['transfer_amount'],
-                "payment_id" => $data['transaction_number'],
-                "txid" => $data['txID'],
-            ];
-
-            $transaction = Transaction::query()
-                ->where('transaction_number', $result['payment_id'])
-                ->first();
-
-            $result['date'] = $transaction->approved_at;
-
-            return to_route('success_page')->with([
-                'title' => trans('public.success'),
-                'description' => trans('public.success_deposit'),
-                'payment' => $result
-            ]);
-        } else {
-            return to_route('dashboard');
-        }
+        return to_route('dashboard');
     }
 
     public function depositCallback(Request $request)
