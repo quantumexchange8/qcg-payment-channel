@@ -10,14 +10,14 @@ use Illuminate\Support\Facades\Log;
 
 class CTraderService
 {
-    private $host = "https://live-quantumcapital.webapi.ctrader.com";
-    private $port = "8443";
-    private $login = "10012";
-    private $password = "Test1234.";
-    private $baseURL = "https://live-quantumcapital.webapi.ctrader.com:8443";
-    private $token = "6f0d6f97-3042-4389-9655-9bc321f3fc1e";
-    private $brokerName = "quantumcapitalglobal";
-    private $environmentName = "live";
+    private string $host = "https://live-quantumcapital.webapi.ctrader.com";
+    private string $port = "8443";
+    private string $login = "10012";
+    private string $password = "Test1234.";
+    private string $baseURL = "https://live-quantumcapital.webapi.ctrader.com:8443";
+    private string $token = "6f0d6f97-3042-4389-9655-9bc321f3fc1e";
+    private string $brokerName = "quantumcapitalglobal";
+    private string $environmentName = "live";
 
     public function connectionStatus(): array
     {
@@ -38,39 +38,34 @@ class CTraderService
     //changeTradeerBalance
     public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
-        $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/{$meta_login}/changebalance?token={$this->token}", [
+        $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
             'login' => $meta_login,
-            'amount' => $amount * 100, //
-            'preciseAmount' => $amount, //
+            'preciseAmount' => $amount,
             'type' => $type,
-            'comment' => $comment, //
-            /* 'externalNote' => '', //
-            'source' => '', //
-            'externalId' => '', // */
+            'comment' => $comment,
         ]);
         $response = $response->json();
-        Log::debug($response);
+
+        if (isset($response['balanceHistoryId'])) {
+           Log::info('Balance history ID:', ['balanceHistoryId' => $response['balanceHistoryId']]);
+        }
+
         $trade = new Trade();
         $trade->setAmount($amount);
         $trade->setComment($comment);
         $trade->setType($type);
         $trade->setTicket($response['balanceHistoryId']);
 
-
-        $data = $this->getUser($meta_login);
-        (new UpdateTradingUser)->execute($meta_login, $data);
-        (new UpdateTradingAccount)->execute($meta_login, $data);
+        $this->getUserInfo($meta_login);
         return $trade;
     }
 
-    public function getUserInfo($trading_users): void
+    public function getUserInfo($meta_login): void
     {
-        foreach ($trading_users as $row) {
-            $data = $this->getUser($row->meta_login);
-            if ($data) {
-                (new UpdateTradingUser)->execute($row->meta_login, $data);
-                (new UpdateTradingAccount)->execute($row->meta_login, $data);
-            }
+        $data = $this->getUser($meta_login);
+        if ($data) {
+            (new UpdateTradingUser)->execute($meta_login, $data);
+            (new UpdateTradingAccount)->execute($meta_login, $data);
         }
     }
 }

@@ -34,7 +34,9 @@ class PaymentController extends Controller
 
         if (App::environment('production')) {
             $tradingUsers = TradingUser::where('user_id', $user_id)->get();
-            (new CTraderService)->getUserInfo($tradingUsers);
+            foreach ($tradingUsers as $trading_user) {
+                (new CTraderService)->getUserInfo($trading_user->meta_login);
+            }
         }
 
         $trading_accounts = TradingAccount::where('user_id', $user_id)->get()->map(function ($trading_account) {
@@ -241,7 +243,7 @@ class PaymentController extends Controller
         $user = Auth::user();
 
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
-        (new CTraderService)->getUserInfo([$tradingUser]);
+        (new CTraderService)->getUserInfo($tradingUser->meta_login);
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
         if ($tradingUser->balance < $request->amount) {
@@ -291,7 +293,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
-        (new CTraderService)->getUserInfo([$tradingUser]);
+        (new CTraderService)->getUserInfo($tradingUser->meta_login);
         $tradingUser = TradingUser::firstWhere('meta_login', $request->from_meta_login);
 
         if ($tradingUser->balance < $request->amount) {
