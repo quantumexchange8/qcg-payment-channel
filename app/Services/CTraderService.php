@@ -38,17 +38,27 @@ class CTraderService
     //changeTradeerBalance
     public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
+        // Log the parameters and their types
+        Log::info('Request Parameters:', [
+            'meta_login' => ['value' => $meta_login, 'type' => gettype($meta_login)],
+            'amount' => ['value' => $amount, 'type' => gettype($amount)],
+            'comment' => ['value' => $comment, 'type' => gettype($comment)],
+            'type' => ['value' => $type, 'type' => gettype($type)],
+        ]);
+
+        // Make the HTTP request
         $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
             'login' => $meta_login,
             'preciseAmount' => (double) $amount,
             'type' => $type,
             'comment' => $comment,
         ]);
-        $response = $response->json();
 
-        if (isset($response['balanceHistoryId'])) {
-           Log::info('Balance history ID:', ['balanceHistoryId' => $response['balanceHistoryId']]);
-        }
+        // Log the response status
+        $status = $response->successful() ? 'success' : 'failure';
+        Log::info('Response Status:', ['status' => $status, 'response' => $response->json()]);
+
+        $response = $response->json();
 
         $trade = new Trade();
         $trade->setAmount($amount);
