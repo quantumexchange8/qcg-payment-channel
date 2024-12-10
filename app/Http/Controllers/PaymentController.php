@@ -164,7 +164,7 @@ class PaymentController extends Controller
             if ($transaction->status =='successful') {
                 if ($transaction->transaction_type == 'deposit') {
                     try {
-                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->amount, "Deposit", ChangeTraderBalanceType::DEPOSIT);
+                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->amount, "Deposit", 'DEPOSIT');
                     } catch (\Throwable $e) {
                         if ($e->getMessage() == "Not found") {
                             TradingUser::firstWhere('meta_login', $transaction->to_meta_login)->update(['acc_status' => 'Inactive']);
