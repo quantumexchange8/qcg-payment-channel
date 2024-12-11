@@ -5,6 +5,8 @@ namespace App\Services;
 use AleeDhillon\MetaFive\Entities\Trade;
 use App\Services\Data\UpdateTradingAccount;
 use App\Services\Data\UpdateTradingUser;
+use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -35,36 +37,53 @@ class CTraderService
         return $response;
     }
 
-    //changeTradeerBalance
+    /**
+     * @throws ConnectionException
+     * @throws Exception
+     * Change trader balance
+     */
     public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
-        // Log the parameters and their types
-        Log::info('Request Parameters:', [
-            'meta_login' => ['value' => $meta_login, 'type' => gettype($meta_login)],
-            'amount' => ['value' => $amount, 'type' => gettype($amount)],
-            'comment' => ['value' => $comment, 'type' => gettype($comment)],
-            'type' => ['value' => $type, 'type' => gettype($type)],
-        ]);
+        $fullUrl = $this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token";
 
-        // Make the HTTP request
-        $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
-            'login' => $meta_login,
+        $payload = [
+            'login' => (int) $meta_login,
             'preciseAmount' => (double) $amount,
             'type' => $type,
             'comment' => $comment,
+        ];
+
+        // Log the request details
+        Log::info('Sending API Request', [
+            'url' => $fullUrl,
+            'payload' => $payload,
         ]);
 
-        // Log the response status
-        $status = $response->successful() ? 'success' : 'failure';
-        Log::info('Response Status:', ['status' => $status, 'response' => $response->json()]);
+        $response = Http::acceptJson()
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post($fullUrl, $payload);
 
-        $response = $response->json();
+        // Log the response details
+        Log::info('API Response', [
+            'status_code' => $response->status(),
+            'response_body' => $response->json(),
+        ]);
 
+        if (!$response->successful()) {
+            Log::error('API Request Failed', [
+                'status_code' => $response->status(),
+                'error_body' => $response->json(),
+            ]);
+            throw new Exception('Failed to process the trade. Please check the logs for more details.');
+        }
+
+        // Create the Trade object
+        $responseBody = $response->json();
         $trade = new Trade();
         $trade->setAmount($amount);
         $trade->setComment($comment);
         $trade->setType($type);
-        $trade->setTicket($response['balanceHistoryId']);
+        $trade->setTicket($responseBody['balanceHistoryId'] ?? null);
 
         $this->getUserInfo($meta_login);
         return $trade;
