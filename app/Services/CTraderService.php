@@ -53,21 +53,17 @@ class CTraderService
             'comment' => $comment,
         ];
 
-        // Log the request details
-        Log::info('Sending API Request', [
-            'url' => $fullUrl,
-            'payload' => $payload,
-        ]);
-
         $response = Http::acceptJson()
             ->withHeaders(['Content-Type' => 'application/json'])
             ->post($fullUrl, $payload);
 
         // Log the response details
-        Log::info('API Response', [
-            'status_code' => $response->status(),
-            'response_body' => $response->json(),
-        ]);
+        if ($type == 'DEPOSIT') {
+            Log::info('DEPOSIT Response', [
+                'status_code' => $response->status(),
+                'response_body' => $response->json(),
+            ]);
+        }
 
         if (!$response->successful()) {
             Log::error('API Request Failed', [
