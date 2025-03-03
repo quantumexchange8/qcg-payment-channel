@@ -54,4 +54,5 @@ return [
     "try_again_later" => "Please try again later!",
     "qcg_company_name" => "Quantum Capital Group",
     "payment_channel" => "Payment Channel",
+    "deposit_to_account" => "Deposit To Account",
 ];

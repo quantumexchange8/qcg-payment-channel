@@ -54,4 +54,5 @@ return [
     "try_again_later" => "請稍後再試!",
     "qcg_company_name" => "量子資本集團",
     "payment_channel" => "支付平台",
+    "deposit_to_account" => "存款至帳戶",
 ];

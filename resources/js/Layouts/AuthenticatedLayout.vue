@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import LogoHeader from "@/Components/LogoHeader.vue";
+import DepositHeader from "@/Components/DepositHeader.vue";
 import { IconWorld } from '@tabler/icons-vue';
 import { IconLogout } from '@tabler/icons-vue';
 import {loadLanguageAsync} from "laravel-vue-i18n";
@@ -68,7 +69,7 @@ const changeLanguage = async (langVal) => {
 
             <div class="flex flex-col gap-8 py-5">
                 <!-- Page Heading -->
-                <LogoHeader class="sticky top-11 z-10 bg-white" />
+                <DepositHeader class="sticky top-11 z-10 bg-white" />
 
                 <!-- Page Content -->
                 <main class="flex justify-center items-center">

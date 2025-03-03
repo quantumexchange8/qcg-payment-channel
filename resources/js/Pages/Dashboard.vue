@@ -42,27 +42,6 @@ onMounted(() => {
     <AuthenticatedLayout>
         <div class="w-full max-w-md">
             <TabGroup :selectedIndex="selectedTab" @change="changeTab">
-                <TabList class="py-1 flex justify-center gap-3 px-3 sticky top-[9.5rem] z-10 bg-white">
-                    <Tab
-                        v-for="category in Object.keys(categories)"
-                        as="template"
-                        :key="category"
-                        v-slot="{ selected }"
-                    >
-                        <button
-                            :class="[
-                              'flex justify-center items-center w-full rounded p-2 text-xs font-semibold',
-                              'ring-transparent focus:outline-none',
-                              selected
-                                ? 'bg-bilbao-100 text-bilbao-800'
-                                : 'bg-gray-100 text-gray-700 hover:bg-bilbao-500/[0.12] hover:text-bilbao-800',
-                            ]"
-                        >
-                            {{ $t(`public.${category}`) }}
-                        </button>
-                    </Tab>
-                </TabList>
-
                 <TabPanels class="mt-8">
                     <TabPanel
                         v-for="component in Object.values(categories)"
