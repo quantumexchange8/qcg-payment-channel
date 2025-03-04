@@ -2,14 +2,10 @@
 import BaseListbox from "@/Components/BaseListbox.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import InputLabel from '@/Components/InputLabel.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Copy03Icon } from "@/Components/Icons/outline";
-import { TetherIcon } from "@/Components/Icons/brands";
 import { Icon } from "@/Components/Icons/outline";
 import Button from "@/Components/Button.vue";
-import { UploadIcon, XIcon } from "@/Components/Icons/outline";
 import { useForm } from "@inertiajs/vue3";
-import Qrcode from "qrcode.vue";
+import TextInput from "@/Components/TextInput.vue"
 import InputError from "@/Components/InputError.vue";
 
 const props = defineProps({
@@ -18,6 +14,7 @@ const props = defineProps({
 
 const form = useForm({
     meta_login: '',
+    amount: '',
 });
 
 const submitForm = () => {
@@ -50,7 +47,7 @@ watch(account, (newValue) => {
 </script>
 
 <template>
-    <form @submit.prevent="submitForm" class="flex flex-col gap-8">
+    <form @submit.prevent="submitForm" class="flex flex-col gap-5">
         <div class="flex flex-col items-start gap-1.5 self-stretch">
             <InputLabel for="tradingAccount" :value="$t('public.trading_account')" />
             <BaseListbox
@@ -66,6 +63,21 @@ watch(account, (newValue) => {
                     {{ $t('public.loading') }}
                 </div>
             </div>
+        </div>
+
+        <div class="flex flex-col items-start gap-1.5 self-stretch">
+            <InputLabel for="amount" :value="$t('public.amount')" />
+            <TextInput
+                v-model="form.amount"
+                class="w-full"
+                type="number"
+                id="amount"
+                placeholder="$ 0.00"
+                min="0"
+                step="0.01"
+                :invalid="form.errors.amount"
+            />
+            <InputError :message="form.errors.amount" />
         </div>
 
         <div class="flex p-3 items-start gap-2 self-stretch rounded bg-gray-50">

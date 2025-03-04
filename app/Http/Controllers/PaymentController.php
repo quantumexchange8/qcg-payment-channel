@@ -68,6 +68,7 @@ class PaymentController extends Controller
 
         $transaction = Transaction::where('transaction_type', 'deposit')
             ->where('to_meta_login', $request->meta_login)
+            ->where('amount', $request->amount)
             ->where('status', 'processing')
             ->first();
 
@@ -78,6 +79,7 @@ class PaymentController extends Controller
                 'transaction_type' => 'deposit',
                 'to_meta_login' => $request->meta_login,
                 'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $request->amount,
                 'status' => 'processing',
             ]);
         }
@@ -98,6 +100,7 @@ class PaymentController extends Controller
             'userEmail' => $user->email,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
+            'amount' => $transaction->amount,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'locale' => app()->getLocale(),
@@ -127,6 +130,7 @@ class PaymentController extends Controller
             "txn_hash" => $data['txID'],
             "transactionID" => $data['transaction_number'],
             "amount" => $data['transfer_amount'],
+            "transfer_amount_type" => $data['transfer_amount_type'] ?? null,
             "status" => $data["status"],
             "remarks" => 'System Approval',
         ];
@@ -148,18 +152,30 @@ class PaymentController extends Controller
         $status = $result['status'] == 'success' ? 'successful' : 'failed';
 
         if ($result['token'] === $dataToHash) {
-            //proceed approval
             $transaction->update([
                 'from_wallet_address' => $result['from_wallet_address'],
                 'to_wallet_address' => $result['to_wallet_address'],
                 'txn_hash' => $result['txn_hash'],
-                'amount' => round($result['amount'], 2),
                 'transaction_charges' => 0,
-                'transaction_amount' => round($result['amount'], 2),
                 'status' => $status,
                 'remarks' => $result['remarks'],
-                'approved_at' => now(),
+                'approved_at' => now()
             ]);
+
+            if ($result['transfer_amount_type'] == 'invalid') {
+                $transaction->update([
+                    'transaction_amount' => $result['amount'],
+                    'status' => 'processing',
+                ]);
+            } else {
+                $transaction->update([
+                    'amount' => $result['amount'],
+                    'transaction_amount' => $result['amount'],
+                    'status' => $status,
+                    'remarks' => $result['remarks'],
+                    'approved_at' => now()
+                ]);
+            }
 
             if ($transaction->status =='successful') {
                 if ($transaction->transaction_type == 'deposit') {
