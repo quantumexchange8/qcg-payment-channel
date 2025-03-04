@@ -47,37 +47,39 @@ watch(account, (newValue) => {
 </script>
 
 <template>
-    <form @submit.prevent="submitForm" class="flex flex-col gap-5">
-        <div class="flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="tradingAccount" :value="$t('public.trading_account')" />
-            <BaseListbox
-                v-model="account"
-                :options="tradingAccounts"
-                class="w-full"
-            />
-            <div class="text-gray-500 text-xs font-medium">
-                <div v-if="balance">
-                    $ {{ balance }}
-                </div>
-                <div v-else>
-                    {{ $t('public.loading') }}
+    <form @submit.prevent="submitForm" class="flex flex-col gap-8">
+        <div class="flex flex-col gap-5 items-center self-stretch">
+            <div class="flex flex-col items-start gap-1.5 self-stretch">
+                <InputLabel for="tradingAccount" :value="$t('public.trading_account')" />
+                <BaseListbox
+                    v-model="account"
+                    :options="tradingAccounts"
+                    class="w-full"
+                />
+                <div class="text-gray-500 text-xs font-medium">
+                    <div v-if="balance">
+                        $ {{ balance }}
+                    </div>
+                    <div v-else>
+                        {{ $t('public.loading') }}
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="flex flex-col items-start gap-1.5 self-stretch">
-            <InputLabel for="amount" :value="$t('public.amount')" />
-            <TextInput
-                v-model="form.amount"
-                class="w-full"
-                type="number"
-                id="amount"
-                placeholder="$ 0.00"
-                min="0"
-                step="0.01"
-                :invalid="form.errors.amount"
-            />
-            <InputError :message="form.errors.amount" />
+            <div class="flex flex-col items-start gap-1.5 self-stretch">
+                <InputLabel for="amount" :value="$t('public.amount')" />
+                <TextInput
+                    v-model="form.amount"
+                    class="w-full"
+                    type="number"
+                    id="amount"
+                    placeholder="$ 0.00"
+                    min="0"
+                    step="0.01"
+                    :invalid="form.errors.amount"
+                />
+                <InputError :message="form.errors.amount" />
+            </div>
         </div>
 
         <div class="flex p-3 items-start gap-2 self-stretch rounded bg-gray-50">
