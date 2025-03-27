@@ -66,13 +66,15 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        $transaction = Transaction::where('transaction_type', 'deposit')
-            ->where('to_meta_login', $request->meta_login)
-            ->where('amount', $request->amount)
-            ->where('status', 'processing')
+        $transaction = Transaction::where([
+            'transaction_type' => 'deposit',
+            'to_meta_login' => $request->meta_login,
+            'status' => 'processing',
+            'txn_hash' => null,
+        ])
             ->first();
 
-        if (empty($transaction)) {
+        if (!$transaction) {
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'category' => 'trading_account',
@@ -81,6 +83,10 @@ class PaymentController extends Controller
                 'transaction_number' => RunningNumberService::getID('transaction'),
                 'amount' => $request->amount,
                 'status' => 'processing',
+            ]);
+        } else {
+            $transaction->update([
+                'amount' => $request->amount,
             ]);
         }
 
@@ -200,11 +206,13 @@ class PaymentController extends Controller
                     $transaction->ticket = $ticket;
                     $transaction->save();
 
-                    Notification::route('mail', 'payment@currenttech.pro')
-                        ->notify(new DepositApprovalNotification($transaction));
-
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
                 }
+            }
+
+            if ($transaction->status != 'failed') {
+                Notification::route('mail', 'payment@currenttech.pro')
+                    ->notify(new DepositApprovalNotification($transaction));
             }
         }
 
