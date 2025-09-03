@@ -50,9 +50,9 @@ return [
     "deposit_note" => "註: 存款金額包含手續費。存入您錢包的實際金額會略低。為避免資金不足，請考慮多存一點。",
     "deposit_now" => "立即存款",
     "copy_link" => "複製連結",
-    "copied" => "已複製!",
     "try_again_later" => "請稍後再試!",
     "qcg_company_name" => "量子資本集團",
     "payment_channel" => "支付平台",
     "deposit_to_account" => "存款至帳戶",
+    "withdraw_from_account" => "從帳戶提款",
 ];

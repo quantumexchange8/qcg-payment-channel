@@ -1,10 +1,8 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import {h, onMounted, ref} from 'vue'
-import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import {computed, h, onMounted, ref} from 'vue'
 import Deposit from "@/Pages/Home/Partials/Deposit.vue";
-import InternalTransfer from "@/Pages/Home/Partials/InternalTransfer.vue";
 import Withdrawal from "@/Pages/Home/Partials/Withdrawal.vue";
 
 const props = defineProps({
@@ -12,51 +10,38 @@ const props = defineProps({
     paymentAccounts: Array,
 })
 
-const categories = ref({
+const categories = {
     deposit: h(Deposit),
+    withdrawal: h(Withdrawal),
     // internal_transfer: h(InternalTransfer),
-    // withdrawal: h(Withdrawal),
-})
-
-const selectedTab = ref(0);
-function changeTab(index) {
-    selectedTab.value = index;
 }
 
-onMounted(() => {
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-        get: (searchParams, prop) => searchParams.get(prop),
-    });
+const status = ref('deposit')
 
-    if (params.status === 'deposit') {
-        selectedTab.value = 0;
-    } else if (params.status === 'withdrawal') {
-        selectedTab.value = 2;
-    }
-});
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search)
+    status.value = params.get('status') || 'deposit'
+})
+
+const activeComponent = computed(() => {
+    return categories[status.value] || categories.deposit
+})
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head
+        :title="status === 'deposit' ? $t('public.deposit_to_account') : $t('public.withdraw_from_account')"
+    />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout
+        :title="status"
+    >
         <div class="w-full max-w-md">
-            <TabGroup :selectedIndex="selectedTab" @change="changeTab">
-                <TabPanels class="mt-8">
-                    <TabPanel
-                        v-for="component in Object.values(categories)"
-                        :class="[
-                            'bg-white px-3',
-                            'ring-transparent focus:outline-none',
-                          ]"
-                    >
-                        <component :is="component"
-                            :tradingAccounts="tradingAccounts"
-                            :paymentAccounts="paymentAccounts"
-                        />
-                    </TabPanel>
-                </TabPanels>
-            </TabGroup>
+            <component
+                :is="activeComponent"
+                :tradingAccounts="tradingAccounts"
+                :paymentAccounts="paymentAccounts"
+            />
         </div>
     </AuthenticatedLayout>
 </template>

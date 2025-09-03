@@ -50,9 +50,9 @@ return [
     "deposit_note" => "Note: The deposit amount includes a fee charge. The actual amount credited to your wallet will be slightly lower. To avoid insufficient funds, consider depositing a bit more.",
     "deposit_now" => "Deposit Now",
     "copy_link" => "Copy link",
-    "copied" => "Copied!",
     "try_again_later" => "Please try again later!",
     "qcg_company_name" => "Quantum Capital Group",
     "payment_channel" => "Payment Channel",
     "deposit_to_account" => "Deposit To Account",
+    "withdraw_from_account" => "Withdraw From Account",
 ];

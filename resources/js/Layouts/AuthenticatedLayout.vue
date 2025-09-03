@@ -1,13 +1,15 @@
 <script setup>
 import { ref } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
-import LogoHeader from "@/Components/LogoHeader.vue";
-import DepositHeader from "@/Components/DepositHeader.vue";
 import { IconWorld } from '@tabler/icons-vue';
 import { IconLogout } from '@tabler/icons-vue';
 import {loadLanguageAsync} from "laravel-vue-i18n";
 import {usePage} from "@inertiajs/vue3";
 import { Link } from '@inertiajs/vue3'
+
+defineProps({
+    title: String,
+})
 
 const currentLocale = ref(usePage().props.locale);
 
@@ -42,13 +44,13 @@ const changeLanguage = async (langVal) => {
 
                                     <template #content>
                                         <ul class="py-1">
-                                            <li 
+                                            <li
                                                 @click="changeLanguage('en')"
                                                 class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-center select-none hover:cursor-pointer"
                                             >
                                                 English
                                             </li>
-                                            <li 
+                                            <li
                                                 @click="changeLanguage('tw')"
                                                 class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-center select-none hover:cursor-pointer"
                                             >
@@ -69,7 +71,16 @@ const changeLanguage = async (langVal) => {
 
             <div class="flex flex-col gap-8 py-5">
                 <!-- Page Heading -->
-                <DepositHeader class="sticky top-11 z-10 bg-white" />
+                <div class="sticky top-11 z-10 bg-white">
+                    <div class="flex flex-col items-center gap-3 self-stretch">
+                        <div class="flex pt-12 flex-col gap-2 items-center self-stretch">
+                            <div class="text-center text-bilbao-800 text-base font-extrabold uppercase">
+                                <div v-if="title === 'deposit'">{{ $t('public.deposit_to_account') }}</div>
+                                <div v-else>{{ $t('public.withdraw_from_account') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Page Content -->
                 <main class="flex justify-center items-center">
