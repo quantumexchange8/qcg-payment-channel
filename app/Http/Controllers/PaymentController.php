@@ -170,9 +170,12 @@ class PaymentController extends Controller
                 'approved_at' => now()
             ]);
 
+            $original_amount = $result['amount'];
+            $formatted_amount = floor($original_amount * 100) / 100;
+            
             $transaction->update([
-                'amount' => $result['amount'],
-                'transaction_amount' => $result['amount'],
+                'amount' => $formatted_amount,
+                'transaction_amount' => $formatted_amount,
                 'status' => $status,
                 'remarks' => $result['remarks'],
                 'approved_at' => now()
@@ -219,8 +222,8 @@ class PaymentController extends Controller
                     $transaction->ticket = $ticket;
                     $transaction->save();
 
-                    Notification::route('mail', 'payment@currenttech.pro')
-                        ->notify(new DepositApprovalNotification($transaction));
+                    // Notification::route('mail', 'payment@currenttech.pro')
+                    //     ->notify(new DepositApprovalNotification($transaction));
 
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
                 }
