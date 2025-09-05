@@ -55,4 +55,5 @@ return [
     "payment_channel" => "Payment Channel",
     "deposit_to_account" => "Deposit To Account",
     "withdraw_from_account" => "Withdraw From Account",
+    "rw_balance" => "Rebate Wallet Balance",
 ];

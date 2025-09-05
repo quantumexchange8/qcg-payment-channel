@@ -14,7 +14,6 @@ const props = defineProps({
 
 const form = useForm({
     meta_login: '',
-    amount: '',
 });
 
 const submitForm = () => {
@@ -65,7 +64,7 @@ watch(account, (newValue) => {
                     </div>
                 </div>
             </div>
-
+<!-- 
             <div class="flex flex-col items-start gap-1.5 self-stretch">
                 <InputLabel for="amount" :value="$t('public.amount')" />
                 <TextInput
@@ -79,7 +78,7 @@ watch(account, (newValue) => {
                     :invalid="form.errors.amount"
                 />
                 <InputError :message="form.errors.amount" />
-            </div>
+            </div> -->
         </div>
 
         <div class="flex p-3 items-start gap-2 self-stretch rounded bg-gray-50">

@@ -55,10 +55,10 @@ onMounted(() => {
 <template>
     <div class="mb-4 flex py-3 px-5 flex-col items-center gap-1 self-stretch rounded bg-gray-50">
         <div class="self-stretch text-gray-500 text-center text-sm font-normal">
-            {{ $t('public.cw_balance') }}
+            {{ $t('public.rw_balance') }}
         </div>
         <div class="self-stretch text-gray-950 text-center text-xl font-bold">
-            $ {{ user.cash_wallet }}
+            $ {{ user.rebate_wallet?.balance }}
         </div>
     </div>
 

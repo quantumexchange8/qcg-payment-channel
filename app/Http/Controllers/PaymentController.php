@@ -12,6 +12,7 @@ use App\Models\TradingAccount;
 use App\Models\TradingUser;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Wallet;
 use App\Notifications\DepositApprovalNotification;
 use App\Services\ChangeTraderBalanceType;
 use Illuminate\Http\Request;
@@ -81,12 +82,12 @@ class PaymentController extends Controller
                 'transaction_type' => 'deposit',
                 'to_meta_login' => $request->meta_login,
                 'transaction_number' => RunningNumberService::getID('transaction'),
-                'amount' => $request->amount,
+                'amount' => 0.01,
                 'status' => 'processing',
             ]);
         } else {
             $transaction->update([
-                'amount' => $request->amount,
+                'amount' => 0.01,
             ]);
         }
 
@@ -106,6 +107,7 @@ class PaymentController extends Controller
             'userEmail' => $user->email,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
+            'meta_login' =>  $request->meta_login,
             'amount' => $transaction->amount,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
@@ -168,23 +170,31 @@ class PaymentController extends Controller
                 'approved_at' => now()
             ]);
 
-            if ($result['transfer_amount_type'] == 'invalid') {
-                $transaction->update([
-                    'transaction_amount' => $result['amount'],
-                    'status' => 'processing',
-                ]);
+            $transaction->update([
+                'amount' => $result['amount'],
+                'transaction_amount' => $result['amount'],
+                'status' => $status,
+                'remarks' => $result['remarks'],
+                'approved_at' => now()
+            ]);
 
-                Notification::route('mail', 'payment@currenttech.pro')
-                    ->notify(new DepositApprovalNotification($transaction));
-            } else {
-                $transaction->update([
-                    'amount' => $result['amount'],
-                    'transaction_amount' => $result['amount'],
-                    'status' => $status,
-                    'remarks' => $result['remarks'],
-                    'approved_at' => now()
-                ]);
-            }
+            // if ($result['transfer_amount_type'] == 'invalid') {
+            //     $transaction->update([
+            //         'transaction_amount' => $result['amount'],
+            //         'status' => 'processing',
+            //     ]);
+
+            //     Notification::route('mail', 'payment@currenttech.pro')
+            //         ->notify(new DepositApprovalNotification($transaction));
+            // } else {
+            //     $transaction->update([
+            //         'amount' => $result['amount'],
+            //         'transaction_amount' => $result['amount'],
+            //         'status' => $status,
+            //         'remarks' => $result['remarks'],
+            //         'approved_at' => now()
+            //     ]);
+            // }
 
             if ($transaction->status =='successful') {
                 if ($transaction->transaction_type == 'deposit') {
@@ -355,17 +365,18 @@ class PaymentController extends Controller
         }
         $ticket = $trade_1->getTicket() . ', ' . $trade_2->getTicket();
 
-        Payment::create([
+        $transaction = Transaction::create([
             'user_id' => $user->id,
-            'payment_id' => $payment_id,
-            'category' => 'internal_transfer',
-            'type' => 'AccountToAccount',
-            'from' => $request->from_meta_login,
-            'to' => $request->to_meta_login,
+            'category' => 'trading_account',
+            'transaction_type' => 'account_to_account',
+            'from_meta_login' => $request->from_meta_login,
+            'to_meta_login' => $request->to_meta_login,
+            'transaction_number' => $payment_id,
             'amount' => $request->amount,
-            'ticket' => $ticket,
-            'status' => 'Successful',
-
+            'transaction_charges' => 0,
+            'transaction_amount' => $request->amount,
+            'status' => 'successful',
+            'comment' => 'to ' . $request->to_meta_login
         ]);
 
         return redirect()->route('success_page')->with([
@@ -377,30 +388,33 @@ class PaymentController extends Controller
     public function withdrawal(WithdrawalRequest $request)
     {
         $user = Auth::user();
-        $amount = floatval($request->amount);
-        if ($user->cash_wallet < $amount) {
-            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
-        }
-
-        $user->cash_wallet -= $amount;
-        $user->save();
-        $payment_id = RunningNumberService::getID('transaction');
-
-        $payment_account = PaymentAccount::query()
+        $amount = $request->amount;
+        $wallet = Wallet::where('user_id', $user->id)->where('type', 'rebate_wallet')->first();
+        $paymentWallet = PaymentAccount::where('user_id', Auth::id())
             ->where('account_no', $request->account_no)
             ->first();
 
-        Payment::create([
+        if ($wallet->balance < $amount) {
+            throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
+        }
+
+        $transaction = Transaction::create([
             'user_id' => $user->id,
-            'payment_id' => $payment_id,
-            'category' => 'payment',
-            'type' => 'Withdrawal',
-            'channel' => $payment_account->payment_platform,
+            'category' => $wallet->type,
+            'transaction_type' => 'withdrawal',
+            'from_wallet_id' => $wallet->id,
+            'transaction_number' => RunningNumberService::getID('transaction'),
+            'payment_account_id' => $paymentWallet->id,
+            'to_wallet_address' => $paymentWallet->account_no,
             'amount' => $amount,
-            'account_no' => $request->account_no,
-            'account_type' => $payment_account->payment_platform_name,
-            'currency' => $payment_account->currency,
+            'transaction_charges' => 0,
+            'transaction_amount' => $amount,
+            'old_wallet_amount' => $wallet->balance,
+            'new_wallet_amount' => $wallet->balance -= $amount,
+            'status' => 'processing',
         ]);
+
+        $wallet->save();
 
         return redirect()->route('success_page')->with([
             'title' => trans('public.success_withdrawal_title'),

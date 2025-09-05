@@ -23,7 +23,7 @@ class DepositRequest extends FormRequest
     {
         return [
             'meta_login' => ['required'],
-            'amount' => ['required', 'numeric', 'min:1'],
+            // 'amount' => ['required', 'numeric', 'min:1'],
         ];
     }
 
@@ -31,7 +31,7 @@ class DepositRequest extends FormRequest
     {
         return [
             'meta_login' => trans('public.trading_account'),
-            'amount' => trans('public.amount'),
+            // 'amount' => trans('public.amount'),
         ];
     }
 }

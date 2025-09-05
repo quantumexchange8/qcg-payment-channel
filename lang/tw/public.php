@@ -55,4 +55,5 @@ return [
     "payment_channel" => "支付平台",
     "deposit_to_account" => "存款至帳戶",
     "withdraw_from_account" => "從帳戶提款",
+    "rw_balance" => "返傭錢包余额",
 ];
